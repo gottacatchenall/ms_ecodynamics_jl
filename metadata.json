@@ -14,27 +14,6 @@
                 "corresponding",
                 "equal"
             ]
-        },
-        {
-            "affiliations": [
-                "Inn of the Prancing Pony",
-                "Fellowship of the Ring"
-            ],
-            "familyname": "Took",
-            "givennames": "Peregrin",
-            "email": "pippin@took.shire"
-        },
-        {
-            "affiliations": [
-                "Green Dragon Inn",
-                "Fellowship of the Ring"
-            ],
-            "familyname": "Brandybuck",
-            "givennames": "Merriadoc",
-            "email": "merry@fellowship.ring",
-            "status": [
-                "equal"
-            ]
         }
     ],
     "abstract": {
