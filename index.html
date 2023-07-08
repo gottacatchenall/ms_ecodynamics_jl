@@ -247,12 +247,6 @@ manuscripts using markdown and github actions</div>
                     Timothée Poisot
                 </a>
                 <sup class="affiliation">1,2,‡</sup>
-                </span><span class="header--author">
-                Peregrin Took
-                <sup class="affiliation">3,4</sup>
-                </span><span class="header--author">
-                Merriadoc Brandybuck
-                <sup class="affiliation">4,5,‡</sup>
                 </span>
             </div>
         </div>
@@ -276,263 +270,399 @@ manuscripts using markdown and github actions</div>
                 </dl>
 
             <div class="artifacts">
-                <a href="Poisot_et_al_2023_template_prepare_draft.pdf" title="Draft" target="_blank">Draft</a>
-                <a href="Poisot_et_al_2023_template_prepare_preprint.pdf" title="Preprint" target="_blank">Preprint</a>
-                <a href="Poisot_et_al_2023_template_prepare.odt" title="OpenDocument" target="_blank">Libre Office</a>
+                <a href="Poisot_2023_template_prepare_draft.pdf" title="Draft" target="_blank">Draft</a>
+                <a href="Poisot_2023_template_prepare_preprint.pdf" title="Preprint" target="_blank">Preprint</a>
+                <a href="Poisot_2023_template_prepare.odt" title="OpenDocument" target="_blank">Libre Office</a>
             </div>
         </section>
 
         <article>
-            <p>This template templates turns README files hosted in a
-            GitHub repo into a formatted manuscript. In practice, this
-            involves converting the <code>README.md</code> file into
-            various LaTeX files, an interactive website, and an
-            OpenDocument text file (for use in Word, or to generate
-            track changes).</p>
-            <p>The workflow is <em>entirely</em> GitHub-based, so the
-            manuscript file is contained entirely in the README. There
-            are a few differences with “normal” markdown (or with GFM,
-            the most commonly used variant). First, because manuscripts
-            require extensive metadata, the metadata are stored in a
-            JSON file, as opposed to a YAML front-matter. Second, we use
-            the <a
-            href="https://github.com/lierdakil/pandoc-crossref"><code>pandoc-crossref</code></a>
-            filter to generate references to figures and tables, which
-            are not rendered when looking at the README on Github.
-            Everything else is standard markdown.</p>
-            <p>There are <em>two</em> important folders:
-            <code>figures</code> and <code>appendix</code>. Both of them
-            will remain in the repository even if they are empty (they
-            come with a <code>.gitkeep</code> file). The
-            <code>figures</code> folder is where figures are stored, and
-            the <code>appendix</code> folder is where you can put
-            markdown files for the appendices. Note that the appendices
-            will come with their <em>own</em> bibliography (which draws
-            from the global <code>references.bib</code> file at the root
-            of the project).</p>
-            <h1 id="the-typesetting">The typesetting</h1>
-            <p>The <em>actual</em> typesetting is handled by another
-            repository, which is located at <a
-            href="https://github.com/PoisotLab/manuscript-typesetter">PoisotLab/manuscript-typesetter</a>.
-            If you don’t feel like running foreign code on your repo,
-            you are absolutely correct. This is why the GitHub action
-            file associated to this template will specify which release
-            of the typesetter will be downloaded, so that you can
-            inspect what the typesetting steps are doing. The
-            typesetting versions follow semantic versioning, so as long
-            the <em>major</em> (as in <code>major.minor.patch</code>)
-            version remains the same, you will not need to change your
-            <code>README.md</code> or <code>metadata.json</code>.</p>
-            <p>In short: they convert the bibliography into a CSL JSON,
-            reformat the metadata so they are usable with pandoc
-            templates, downloads a whole bunch of binaries to do the
-            typesetting (as well as the TeX Gyre fonts we use for text,
-            and the <code>JuliaMono</code> font we use for code), and
-            then return everything as a compressed file, which is then
-            deployed using GitHub pages.</p>
-            <p>All documents will be deployed to <code>gh-pages</code>
-            <em>only</em> on push events from the <code>main</code>
-            branch. All of the artifacts will be built when doing pull
-            requests, so you can check that merging a branch is
-            <em>not</em> going to cause the compilation of the documents
-            to fail; indeed, you can download the artifacts produced
-            during the run, to check the PDF and html files. The website
-            is only updated from the <code>main</code> branch. When
-            doing a pull request, you will be notified of the word count
-            of the manuscript (approximate, and excluding
-            references).</p>
-            <p>If you want to use the typesetting system locally,
-            <em>you can</em>. We do not recommend it, but you absolutely
-            can. All you need to do is make sure it is downloaded in the
-            <code>.typesetter</code> folder in your repository (which is
-            going to be ignored by <code>git</code> by default), and
-            then install <code>Julia</code> (we know…), and then run the
-            top-level script. Again, we definitely advise against
-            running things locally.</p>
-            <h1 id="deploying-the-template">Deploying the template</h1>
-            <p>The process of deploying this template has been
-            <em>greatly</em> streamlined from previous versions. Click
-            on the “Use this template” button at the top of the Github
-            repo, making sure to check the option to import all branches
-            (this will import <code>gh-pages</code> and allow deploys to
-            start immediately). An example is given in fig. 1.</p>
+            <h1 id="abstract">Abstract</h1>
+            <p>Ecosystems are often modeled using differential
+            equations.</p>
+            <p>Platform for simulation of both determinsitic and
+            stochastic models of population and community dynamics,
+            either at a single location or across a spatial graph with
+            environmental variation.</p>
+            <p>Built on DifferentialEquations.jl, a state-of-the-art
+            library for DEs.</p>
+            <p>Enables inferences of dynamics. First Bayesian inference
+            of DE parameters.</p>
+            <p>SciML.</p>
+            <h1 id="introduction">Introduction</h1>
+            <p>Ecosystems are inherently dynamic—the abundance and
+            composition of different species at a different places is
+            constantly changing over time.</p>
+            <p>The study of the stability of dynamical systems over time
+            has deep connections with the modeling of ecosystem
+            dynamics, e.g. the study of chaotic dynamics emerged from
+            <span class="citation"
+            data-cites="May1972">(<strong>May1972?</strong>)</span>’s
+            model of the logistic map undergoing a fork bifurcation
+            under increasing growth rates.</p>
+            <p>Models that describe how ecological systems at
+            population, community, or ecosystem levels over time
+            (<em>ecosystem dynamics</em>, henceforth) typically take
+            form of differential equations <span class="citation"
+            data-cites="Lotka">(<strong>Volterra?</strong>)</span>
+            (where time is continuous) or difference-equations <span
+            class="citation"
+            data-cites="May">(<strong>May?</strong>)</span> (where time
+            is discrete).</p>
+            <p>These classic models aren’t perfect—they are
+            abstractions. In reality, species abundances inherently
+            changes over time as a result of niche and neutral
+            processes, combined with dispersal <span class="citation"
+            data-cites="Velland2010ConSyn">(<strong>Velland2010ConSyn?</strong>)</span>.</p>
+            <p>Here, we present <code>EcoDynamics.jl</code>, a software
+            toolkit for simulating a wide variety of models of
+            population and community dynamics, both in isolation and as
+            reaction-diffusion dynamics on spatial-graphs.
+            <code>EcoDynamics</code> enables both deterministic and
+            stochatic dynamics, and has the potential for environmental
+            covariates associated with nodes in the spatial graph to
+            affect demographic parameters, enabling virtual experiments
+            about the effects of spatial environmental variation on
+            population and community processes.</p>
+            <p>EcoDynamics.jl includes a rich library of models from the
+            literature that enables easy addition of customized
+            models.</p>
+            <p>This toolkit is built upon DifferentialEquations.jl, a
+            library for ordinary and stochastic differential
+            equations.</p>
+            <p>Why is this integration important? - Orders of magnitude
+            faster than deSolver, for example. - Native integrations
+            with other Julia packages for inference. - Turing.jl for
+            Bayesian inference of parameters - SciML, DiffEqFlux for
+            PINNs - Arbitrarily complicated models of stochasticity.</p>
+            <p>Development of Scientific Machine-Learning [SciML; <span
+            class="citation"
+            data-cites="Rackauckas2021UniDif">(<strong>Rackauckas2021UniDif?</strong>)</span>].
+            Combine mechanistic, domain specific models (in the form of
+            DEs) with data-driven models (neural networks).</p>
+            <p>Where <span class="math inline"><em>f</em></span> is a
+            model of dynamics (e.g. Lotka-Volterra), and <span
+            class="math inline"><em>g</em></span> is a neural network
+            that, aftrer training, accounts for the difference in
+            dynamics between a set of observed datapoints <span
+            class="math inline">(<em>x</em><sub><em>i</em></sub>,<em>t</em><sub><em>i</em></sub>)</span>
+            and the hypothesized model <span
+            class="math inline"><em>f</em></span>.</p>
+            <p>Major angle: simulation of observing dynamics is
+            important. We can never observe ground truth in nature. So,
+            we never know if our statistical analyses we employ would be
+            capable of capturing an effect if it was real. We can
+            attempt to estimate this using power analysis, but
+            simulation provides us a case where we can have a ‘virtual
+            laboratory’ <span class="citation"
+            data-cites="VolkerGrimm">(<strong>VolkerGrimm?</strong>)</span>
+            which can provide “ground-truth” that we use. Quite common
+            in physical sciences: test your analysis software on
+            simulated data to make sure it works <em>before</em> you try
+            using it with real data.</p>
+            <h1 id="software-design">Software Design</h1>
+            <h2 id="brief-software-overview">Brief software
+            overview</h2>
+            <p>ere we overview the design and usage patterns in
+            EcoDynamics.jl.</p>
             <figure>
-            <img src="figures/how-to-clone.png" id="fig:clone"
-            alt="Figure 1: The important steps in using this template are (1) to pick the new name for your repository, (2) to make sure “Include all branches” is checked, and (3) to finish the process by clicking on “Create repository from template”." />
-            <figcaption aria-hidden="true">Figure 1: The important steps
-            in using this template are (1) to pick the new name for your
-            repository, (2) to make sure “Include all branches” is
-            checked, and (3) to finish the process by clicking on
-            “Create repository from template”.</figcaption>
+            <img src="./figures/design.png" id="fig:design"
+            alt="Figure 1: Overview" />
+            <figcaption aria-hidden="true">Figure 1:
+            Overview</figcaption>
             </figure>
-            <p>When this is done, you can open your own repository, edit
-            <code>README.md</code> with your own text, commit, and push.
-            This will trigger the website build, which will become
-            available at <code>http://you.github.io/repo-name/</code>.
-            You can then edit the <code>references.bib</code> file,
-            change the <code>logo.png</code> file, and update the
-            <code>metadata.json</code> file. Every time you push a new
-            commit, everything will be updated.</p>
-            <h1 id="the-metadata-file">The metadata file</h1>
-            <p>The <code>metadata.json</code> file provided with this
-            template is reasonably complete, but the full format is
-            explained in the Supp. Mat. on the metadata specification.
-            From the website, Supp. Mat. can be accessed at the very
-            bottom of the page.</p>
-            <h1 id="references-management">References management</h1>
-            <p>The references are managed by <code>pandoc</code>.
-            References <em>must</em> be stored in a
-            <code>references.bib</code> file, and that it would make
-            sense to order it alphabetically by key, but this makes no
-            difference.</p>
-            <p>We use <a href="https://www.zotero.org/">Zotero</a> for
-            references management, and for the lab’s manuscripts, we
-            work from folders in a shared library (with a folder for
-            every manuscript).</p>
-            <p>We recommend the <a
-            href="https://retorque.re/zotero-better-bibtex/">Better
-            BibTeX</a> plugin for citation key generations, and
-            auto-export of the shared library to the
-            <code>references.bib</code> file. We use a citation key
-            format meant to convey information on the author (first
-            author full name), date (complet year), and title (first
-            non-stop-word word of the title). It must be set in the
-            Better BibTeX preferences as (you might need to remove the
-            line changes):</p>
-            <pre><code>auth.fold.fold + year + title.fold.nopunctordash.skipwords.lower.select(1,1).capitalize()</code></pre>
-            <p>It is a good idea to configure Better BibTeX to
-            auto-export on change, and to remove a lot of fields that
-            are not strictly speaking required for references. The list
-            of fields we usually ignore is:</p>
-            <pre><code>abstract,copyright,annotation,file,pmid,month,shorttitle,keywords</code></pre>
-            <p>The citations are done using the normal markdown syntax,
-            where <code>@Elton1927AniEco</code> produces <span
-            class="citation" data-cites="Elton1927AniEco">Elton
-            (1927)</span>, and <code>[@Camerano1880EquViv]</code>
-            produces <span class="citation"
-            data-cites="Camerano1880EquViv">(Camerano 1880)</span>.</p>
-            <h1 id="figures-tables-and-other-things">Figures, Tables,
-            and other things</h1>
-            <p>Note that you can wrap the text of legends for both
-            figures and tables. This avoids the issue of having very
-            long lines.</p>
-            <h2 id="mathematics">Mathematics</h2>
-            <p>The following equation</p>
-            <p><span id="eq:eq1"><span class="math display">$$J'(p) =
-            \frac{1}{\text{log}(S)}\times\left(-\sum p \times
-            \text{log}(p)\right)\qquad{(1)}$$</span></span></p>
-            <p>is produced using</p>
-            <div class="sourceCode" id="cb3"><pre
-            class="sourceCode latex"><code class="sourceCode latex"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ss">$$J&#39;(p) = </span><span class="sc">\frac</span><span class="ss">{1}{</span><span class="sc">\text</span>{log}<span class="ss">(S)}</span><span class="sc">\times</span><span class="ss"> ... $$</span> {#eq:eq1}</span></code></pre></div>
-            <p>and can be referenced using <code>@eq:eq1</code>, which
-            will result in eq. 1. Note that because we use
-            <code>pandoc-crossref</code>, the label “eq.” will be
-            generated automatically.</p>
-            <h2 id="tables">Tables</h2>
-            <p>Table legends go on the line after the table itself. To
-            generate a reference to the table, use
-            <code>{#tbl:id}</code> – then, in the text, you can use
-            <code>{@tbl:id}</code> to refer to the table. For example,
-            the table below is tbl. 1. You can remove the <em>table</em>
-            in front by using <code>!@tbl:id</code>, or force it to be
-            capitalized with <code>\*tbl:id</code>.</p>
-            <div id="tbl:id">
+            <ul>
+            <li>dispersal kernel
+            <ul>
+            <li>dispersal potential as a concept</li>
+            <li>diffusion matrix</li>
+            </ul></li>
+            </ul>
+            <h2 id="model-index">Model index</h2>
+            <p>Note that all <code>Population</code> and
+            <code>Community</code> models can be run on spatial
+            graphs.</p>
             <table>
-            <caption>Table 1: This is a table, and its identifier is
-            <code>id</code> – we can refer to it using
-            <code>{@tbl:id}</code>. Note that even if the table legend
-            is written below the table itself, it will appear on top in
-            the PDF document.</caption>
+            <colgroup>
+            <col style="width: 15%" />
+            <col style="width: 26%" />
+            <col style="width: 20%" />
+            <col style="width: 22%" />
+            <col style="width: 15%" />
+            </colgroup>
             <thead>
             <tr class="header">
-            <th style="text-align: right;">Sepal.Length</th>
-            <th style="text-align: right;">Sepal.Width</th>
-            <th style="text-align: right;">Petal.Length</th>
-            <th style="text-align: right;">Petal.Width</th>
-            <th style="text-align: left;">Species</th>
+            <th><strong>Scale</strong></th>
+            <th><strong>Name</strong></th>
+            <th><strong>Time</strong></th>
+            <th><strong>Aliases</strong></th>
+            <th><strong>Reference</strong></th>
             </tr>
             </thead>
             <tbody>
             <tr class="odd">
-            <td style="text-align: right;">5.1</td>
-            <td style="text-align: right;">3.5</td>
-            <td style="text-align: right;">1.4</td>
-            <td style="text-align: right;">0.2</td>
-            <td style="text-align: left;">setosa</td>
+            <td>Population</td>
+            <td>Logistic Model</td>
+            <td>Continuous</td>
+            <td>-</td>
+            <td></td>
             </tr>
             <tr class="even">
-            <td style="text-align: right;">5.0</td>
-            <td style="text-align: right;">3.6</td>
-            <td style="text-align: right;">1.4</td>
-            <td style="text-align: right;">0.2</td>
-            <td style="text-align: left;">setosa</td>
+            <td>Population</td>
+            <td>Beverton-Holt</td>
+            <td>Discrete</td>
+            <td>-</td>
+            <td></td>
             </tr>
             <tr class="odd">
-            <td style="text-align: right;">5.4</td>
-            <td style="text-align: right;">3.9</td>
-            <td style="text-align: right;">1.7</td>
-            <td style="text-align: right;">0.4</td>
-            <td style="text-align: left;">setosa</td>
+            <td>Population</td>
+            <td>Ricker Model</td>
+            <td>Discrete</td>
+            <td>-</td>
+            <td></td>
+            </tr>
+            <tr class="even">
+            <td>Population</td>
+            <td>SIR Model</td>
+            <td>Discrete</td>
+            <td>-</td>
+            <td></td>
+            </tr>
+            <tr class="odd">
+            <td>Community</td>
+            <td>Trophic Lotka-Volterra</td>
+            <td>Continuous</td>
+            <td>-</td>
+            <td></td>
+            </tr>
+            <tr class="even">
+            <td>Community</td>
+            <td>Rosenzweig-Macarthur</td>
+            <td>Continuous</td>
+            <td>LV w/ Holling Type II</td>
+            <td></td>
+            </tr>
+            <tr class="odd">
+            <td>Community</td>
+            <td>Holling Type III</td>
+            <td>Continuous</td>
+            <td></td>
+            <td></td>
+            </tr>
+            <tr class="even">
+            <td>Community</td>
+            <td>DeAngelis-Beddington</td>
+            <td>Continuous</td>
+            <td></td>
+            <td></td>
+            </tr>
+            <tr class="odd">
+            <td>Community</td>
+            <td>Yodzis-Innes</td>
+            <td>Continuous</td>
+            <td></td>
+            <td></td>
+            </tr>
+            <tr class="even">
+            <td>Community</td>
+            <td>Competitive Lotka-Volterra</td>
+            <td>Continuous</td>
+            <td></td>
+            <td></td>
+            </tr>
+            <tr class="odd">
+            <td>Metapopulation</td>
+            <td>Levins Metapopulation</td>
+            <td>Continuous/Discrete</td>
+            <td></td>
+            <td></td>
+            </tr>
+            <tr class="even">
+            <td>Metapopulation</td>
+            <td>Incidence-Funciton Model</td>
+            <td>Discrete</td>
+            <td></td>
+            <td>[Hanski1994]</td>
+            </tr>
+            <tr class="odd">
+            <td>Metacommunity</td>
+            <td>Neutral Model</td>
+            <td>Continuous</td>
+            <td></td>
+            <td>[Hubbell2001]</td>
+            </tr>
+            <tr class="even">
+            <td>Metacommunity</td>
+            <td>Process-based Competition</td>
+            <td>Discrete</td>
+            <td></td>
+            <td>[Thompson2020]</td>
             </tr>
             </tbody>
             </table>
-            </div>
-            <h1 id="figures">Figures</h1>
-            <p>Figures can have a legend – all figures <em>must</em> be
-            in the <code>figures/</code> folder of the project, as it is
-            also used for the website. We recommend to use good
-            resolution images, rather than PDFs, or at least to have
-            multiple versions available.</p>
-            <pre><code>![This is the legend of the figure...](figures/figure.png){#fig:figure}</code></pre>
+            <h1 id="case-studies">Case studies</h1>
+            <p>Here we consider a few vignettes of how EcoDynamics.jl
+            can be used.</p>
+            <p>The first focuses on its use for simulation.</p>
+            <p>The second focuses on its use for inference. First Bayes,
+            second using Scientific Machine-Learning. Taking inspiration
+            from Physics-Informed-Neural-Networks (PINNs), we propose an
+            “Ecology-Informed-Neural-Network” (EINN) model that can
+            account for a lack of knowledge about the functional
+            response in a consumer-resource system.</p>
+            <h2
+            id="measuring-the-inflationary-effect-w-spatial-autocorrelation-or-something">Measuring
+            the inflationary effect w/ spatial autocorrelation or
+            something</h2>
+            <p>The inflationary effect refers to a metapopulation
+            across</p>
+            <ul>
+            <li>Test claim about proprtion of sites that are sinks and
+            when total extinction happens as function of how high the
+            growth rate is in source patches.</li>
+            </ul>
+            <h2
+            id="bayesian-inference-of-local-community-dynamics">Bayesian
+            inference of local community dynamics</h2>
+            <ul>
+            <li>Local community dynamics (<em>community</em>)
+            <ul>
+            <li>Ease of integration with Turing for Bayesian inference
+            of dynamics</li>
+            <li>It being built on DiffEq means easy integration w/
+            SciML.</li>
+            </ul></li>
+            <li>Do a little power analysis on time frequency <img
+            src="./figures/bayes.png" alt="TODO" /></li>
+            </ul>
+            <h2
+            id="accounting-for-missing-ecology-using-ecology-informed-neural-networks">Accounting
+            for ‘missing-ecology’ using ecology-informed neural
+            networks</h2>
+            <h3
+            id="scientific-machine-learning-and-physics-informed-neural-networks">Scientific
+            Machine Learning and Physics-Informed-Neural-Networks</h3>
+            <ul>
+            <li>What is SciML?</li>
+            <li>What are PINNs?
+            <ul>
+            <li>Widely used for PDEs with nonlinear behavior.</li>
+            <li>Turns out, when you train this on whole time-series,
+            this causes issues.</li>
+            </ul></li>
+            <li>What is difference between NeuralODE (NODE) and
+            UniversalODE (UODE)?
+            <ul>
+            <li>NeuralODE <span class="citation"
+            data-cites="Chen2018">(<strong>Chen2018?</strong>)</span>,</li>
+            <li>UODE <span class="citation"
+            data-cites="Rackauckus">(<strong>Rackauckus?</strong>)</span>,
+            NN is the residual</li>
+            </ul></li>
+            <li>Multiple shooting. Similar to <span class="citation"
+            data-cites="VictorBPaper">(<strong>VictorBPaper?</strong>)</span>
+            which found this method also improves fitting of NeuralODEs
+            in ecology.</li>
+            </ul>
+            <h3
+            id="infering-a-functional-response-using-ecology-informed-neural-networks">Infering
+            a functional response using
+            Ecology-Informed-Neural-Networks</h3>
+            <p>Lets say we know some simple, but incomplete, biological
+            information about each species in a consumer-resource
+            system. We’ll assume the resource exhibits some form of
+            density dependent growth, and mortaility as an unknown
+            function <span class="math inline"><em>f</em></span> of the
+            product of the amount of consumers and resource, <span
+            class="math inline"><em>f</em>(<em>C</em><em>R</em>)</span>.
+            Together this means we believe the derivate <span
+            class="math inline">$\frac{dR}{dt}$</span> should be
+            proportional to these values, i.e.</p>
+            <p><span class="math display">$$\frac{dR}{dt}
+            \propto  R(1-R) - f(CR)$$</span></p>
+            <p>Similarly, for the consumer we assume it growths
+            proportional to <span
+            class="math inline"><em>f</em>(<em>C</em><em>R</em>)</span>,
+            and is subject to linear mortality, i.e. </p>
+            <p><span class="math display">$$\frac{dC}{dt} \propto f(CR)
+            - R$$</span></p>
+            <p>We want to build a EINN that maps values that we know are
+            important in governing the dynamics of this system (<span
+            class="math inline"><em>C</em>, <em>R</em>(1−<em>R</em>), <em>C</em><em>R</em></span>).
+            In principle we could use a NN that maps from <span
+            class="math inline">[<em>C</em>,<em>R</em>]</span> to the
+            pair of derivatives <span
+            class="math inline">$[\frac{dC}{dt} \frac{dR}{dt}]$</span>,
+            and via the universal approximation theorem, with enough
+            first layer width we could approximate the true <span
+            class="math inline">$[\frac{dC}{dt} \frac{dR}{dt}]$</span>
+            to an arbitrarily small error <span class="citation"
+            data-cites="citeUAT">(<strong>citeUAT?</strong>)</span></p>
+            <p><span
+            class="math inline"><em>g</em>(<em>x⃗</em>) = <em>σ</em>(<em>W</em><sub>3</sub>⋅<em>σ</em>(<em>W</em><sub>2</sub>⋅tanh(<em>W</em><sub>3</sub>⋅<em>x⃗</em>)))</span></p>
             <figure>
-            <img src="figures/figure.png" id="fig:figure"
-            alt="Figure 2: This is the legend of the figure, which will be shown in the margin in preprint mode, and underneath the figure in draft mode. The legend can contain references, etc. It is advised to use a resolution of at least 600dpi for the figures." />
-            <figcaption aria-hidden="true">Figure 2: This is the legend
-            of the figure, which will be shown in the margin in preprint
-            mode, and underneath the figure in draft mode. The legend
-            can contain references, etc. It is advised to use a
-            resolution of at least 600dpi for the figures.</figcaption>
+            <img src="./figures/einn.png" id="fig:einn"
+            alt="Figure 2: todo" />
+            <figcaption aria-hidden="true">Figure 2: todo</figcaption>
             </figure>
-            <p>We can now use <code>@fig:figure</code> to refer to
-            fig. 2.</p>
-            <h1 id="unicode-support">Unicode support</h1>
-            <p>The PDFs are rendered using the excellent <a
-            href="https://tectonic-typesetting.github.io/en-US/"><code>tectonic</code></a>
-            engine, and use <code>fontspec</code> for better looking
-            fonts. The text is set in TeX Gyre Termes, the titles are
-            set in TeX Gyre Heros, and the code is set in JuliaMono.</p>
-            <p>The text can use unicode: for example, this α is written
-            as is in the main text. The code can, similarly, use
-            unicode. For example, we can use the one-liner neural
-            network from the <a href=""
-            title="https://github.com/mossr/BeautifulAlgorithms.jl/blob/master/src/neural_network_one_liner.jl">beautiful
-            algorithms</a> repository:</p>
-            <div class="sourceCode" id="cb5"><pre
-            class="sourceCode julia"><code class="sourceCode julia"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">neural_network</span>(x, 𝐕, 𝐰, <span class="cn">φ</span>, g) <span class="op">=</span> 𝐰 <span class="op">⋅</span> <span class="fu">map</span>(𝐯ⱼ <span class="op">-&gt;</span> <span class="fu">g</span>(𝐯ⱼ <span class="op">⋅</span> <span class="fu">φ</span>(x)), 𝐕)</span></code></pre></div>
-            <p>Every character that <code>JuliaMono</code> supports
-            (which is <em>a lot</em>) can be used in code.</p>
-            <h1 id="suppl.-mat.">Suppl. Mat.</h1>
-            <p>The supplementary material <em>must</em> be in markdown
-            files stored in <code>appendix</code>, and <em>must</em>
-            have a front-matter with <code>order</code> (a number giving
-            the order of the supp. mat. document) and <code>name</code>
-            (a string giving the name of the supp. mat.).</p>
-            <h1 class="unnumbered" id="references">References</h1>
-            <div id="refs"
-            class="references csl-bib-body hanging-indent"
-            role="doc-bibliography">
-            <div id="ref-Camerano1880EquViv" class="csl-entry"
-            role="doc-biblioentry">
-            Camerano, L. (1880). Dell’equilibrio dei viventi merce la
-            reciproca distruzione. <em>Atti Della R. Accad. Delle Sci.
-            Torino</em>, 15, 393–414.
-            </div>
-            <div id="ref-Elton1927AniEco" class="csl-entry"
-            role="doc-biblioentry">
-            Elton, C.S. (1927). <em>Animal ecology</em>. University of
-            Chicago Press.
-            </div>
-            </div>
+            <p>The thing is, inputs aren’t limited just to this type of
+            species information, they can also include arbitrarily many
+            environment coviarates that can vary across space and/or
+            time. This worked for forecasting covid with neural-ODEs
+            <span class="citation"
+            data-cites="Nunez2023ForVir">(<strong>Nunez2023ForVir?</strong>)</span></p>
+            <p>Nonlinearity requires more data.</p>
+            <ul>
+            <li>Alternative to <span class="citation"
+            data-cites="BoettigerPaper">(<strong>BoettigerPaper?</strong>)</span></li>
+            </ul>
+            <h2
+            id="final-percolation-of-spatial-graphs-with-max-dispersal.-forcing-params-max_distance-and-num_patches">Final:
+            percolation of spatial graphs with max dispersal. Forcing
+            params: max_distance and num_patches</h2>
+            <figure>
+            <img src="./figures/percolation.png" alt="TODO" />
+            <figcaption aria-hidden="true">TODO</figcaption>
+            </figure>
+            <p>This packages is as much about understanding the effects
+            of connectivity and environmental variation as particular
+            dynamics. Example of phase-transition in connectivity as a
+            result of the max-distance.</p>
+            <p>Explain dispersal kernel. In the real world, there are
+            intrinsic biological constraints tat make dispersal beyond a
+            certain distance have a probability of effectively <span
+            class="math inline">0</span>. In a spatial graph, depending
+            on how many patches there are and where they are located,
+            this means that there patches that are entirely isolated, or
+            small ‘meso-populations’ that interact with a few other
+            patches, but not the larger system as a whole (see fig
+            TBD).</p>
+            <p>Introduce percolation problem. As the maximum dispersal
+            distance of the species in question changes, so does the
+            topology of resulting spatial graph.</p>
+            <ul>
+            <li>In limit of infinite min distance and 0 decay, it should
+            approach critical transition of largest component in ER
+            graph.
+            <ul>
+            <li>How much does this diverge as function of alpha</li>
+            </ul></li>
+            </ul>
+            <h1 id="discussion">Discussion</h1>
+            <p>Comparing different simulated models of dynamics to
+            empirical data is useful. - This enables stiatistical
+            comparison of potential models for producing a given sampled
+            dataset.</p>
+            <ul>
+            <li>Deep learning for forecasting. MCMC estimate of
+            parameters given true model is ideal [BoettigerPaper]</li>
+            <li>SciML and forecasting. Fill in “missing physics/ecology”
+            to determine what the <em>true</em> dynamics are</li>
+            </ul>
+            <h1 id="acknowledgements">Acknowledgements</h1>
+            <ul>
+            <li>Victor B</li>
+            </ul>
         </article>
     </main>
 
@@ -540,11 +670,11 @@ manuscripts using markdown and github actions</div>
                 <div class="container">
             <h2>Supplementary Material</h2>
             <span class="appendix--list">
-                <a href="appendix/Poisot_et_al_2023_template_prepare_s1.pdf" target="_blank">
+                <a href="appendix/Poisot_2023_template_prepare_s1.pdf" target="_blank">
                     <b>1:</b>&nbsp;The metadata configuration file
                 </a><br />
             </span><span class="appendix--list">
-                <a href="appendix/Poisot_et_al_2023_template_prepare_s2.pdf" target="_blank">
+                <a href="appendix/Poisot_2023_template_prepare_s2.pdf" target="_blank">
                     <b>2:</b>&nbsp;Bibliography in supp. mat.
                 </a><br />
             </span>
@@ -553,9 +683,7 @@ manuscripts using markdown and github actions</div>
             <h2>Affiliations</h2>
             <sup>1</sup>&nbsp;Université de
             Montréal; <sup>2</sup>&nbsp;Québec Centre for Biodiversity
-            Sciences; <sup>3</sup>&nbsp;Inn of the Prancing
-            Pony; <sup>4</sup>&nbsp;Fellowship of the
-            Ring; <sup>5</sup>&nbsp;Green Dragon Inn
+            Sciences
             <br />
             
         </div>
