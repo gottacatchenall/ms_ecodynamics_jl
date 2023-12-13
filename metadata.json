@@ -1,30 +1,59 @@
 {
-    "title": "Template to prepare preprints and manuscripts using markdown and github actions",
+    "title": "EcoDynamics.jl: A virtual laboratory for ecological dynamics on heterogeneous spatial graphs",
     "authors": [
         {
             "affiliations": [
-                "Université de Montréal",
-                "Québec Centre for Biodiversity Sciences"
+                "McGill University",
+                "Québec Centre for Biodiversity Science"
             ],
-            "familyname": "Poisot",
-            "givennames": "Timothée",
-            "email": "timothee.poisot@umontreal.ca",
-            "orcid": "0000-0002-0735-5184",
+            "familyname": "Catchen",
+            "givennames": "Michael D.",
+            "email": "michael.catchen@mcgill.ca",
+            "orcid": "0000-0002-6506-6487",
             "status": [
                 "corresponding",
                 "equal"
             ]
+        },
+        {
+            "affiliations": [
+              "Université de Montréal",
+              "Québec Centre for Biodiversity Science"
+            ],
+            "familyname": "Poisot",
+            "givennames": "Timothée",
+            "email": "timothee.poisot@umontreal.ca",
+            "orcid": "0000-0002-0735-5184"
+        },
+        {
+            "affiliations": [
+              "McGill University",
+              "Québec Centre for Biodiversity Science"
+            ],
+            "familyname": "Pollock",
+            "givennames": "Laura",
+            "email": "laura.pollock@mcgill.ca",
+            "orcid": "0000-0002-6004-4027"
+        },
+        {
+            "affiliations": [
+              "McGill University",
+              "Québec Centre for Biodiversity Science"
+            ],
+            "familyname": "Gonzalez",
+            "givennames": "Andrew",
+            "email": "andrew.gonzalez@mcgill.ca",
+            "orcid": "0000-0001-6075-8081"
         }
     ],
     "abstract": {
-        "Purpose": "This template provides a series of scripts to render a markdown document into an interactive website and a series of PDFs.",
-        "Motivation": "It makes collaborating on text with GitHub easier, and means that we never need to think about the output.",
-        "Internals": "GitHub actions and a series of python scritpts. The markdown is handled with `pandoc`."
+        "Abstract": "We present a software platform, EcoDynamics.jl, for simulation of both deterministic and stochastic models of population and community dynamics, either at a single location or across a spatial graph with environmental variation. Spatial graphs offer a flexible tool to model heterogeneous landscape structure, the movement and dispersal of organisms, and the impacts of environmental variation on population dynamics. EcoDynamics.jl contains a wide variety of models from the literature, and enables quick extension to arbitrarily complex models via a common API. The goal is for EcoDynamics.jl to serve as a “virtual laboratory” for simulating synthetic time-series of biodiversity data in heterogeneous landscapes in order to benchmark and test inference tools with data where the “ground truth” generative process is known. EcoDynamics.jl is built on DifferentialEquations.jl, a state-of-the-art library for simulating ordinary and stochastic differential equations and difference equations. We use four separate vignettes to show the distinct potential uses of EcoDynamics.jl, focusing two on how landscape properties affect dynamics, and the other two on inference from data."
     },
     "keywords": [
-        "pandoc",
-        "pandoc-crossref",
-        "github actions"
+        "metacommunity ecology",
+        "ecological dynamics",
+        "spatial graphs",
+        "reaction diffusion"
     ],
     "citationstyle": "ecology-letters"
 }

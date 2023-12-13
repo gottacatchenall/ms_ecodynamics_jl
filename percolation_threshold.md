@@ -16,15 +16,30 @@ that no other point $a_j$ is within $r$ of $a_i \ \forall j \neq i$?
 
 ---
 
-Start with simple case, only two patches, $i$ and $j$.
+# Part One: probability single pair is more than $r$ apart
 
+Start with simple case, only two patches, $i$ and $j$.
 What is the probability that they are more than $r$ apart?
 
-$X_i \sim \text{U}(0,1)$, $X_j \sim \text{U}(0,1)$.
+$X \sim \text{U}(0,1)$, $X \sim \text{U}(0,1)$.
 
-What is the distribution of $X_i - X_j$? We can express this using a convolution
-of $X_i$ and $X_j$. 
+What is the distribution of $X - Y$? We can express this using a convolution of
+$X$ and $Y$.
 
-We define $Z = X_i - X_j$.
+We define $Z = | X - Y |$. The pdf of $Z$, which is the pdf of the distribution we
+are interested in, is given by  
 
-$$P(Z=z) = \int_0^z P(X=x)P(Y=z+x) dx$$
+
+Eventually, $$ P(z) = 2 - \frac{z}{2} $$
+
+
+We are interested in a new random variable $D = \sqrt{(X_1 - Y_1)^2 + (X_2 -
+Y_2)^2}$ where $X_i$ and $Y_i$ and i.i.d. draws from $\text{Uniform}(0,1)$. 
+
+We are interested in the probably 
+
+$$P(D \leq r)$$
+
+
+
+$$P(\text{Any isloated}) = 1 - P(\text{None isolated})$$
