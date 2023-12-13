@@ -4,8 +4,8 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Template to prepare preprints and manuscripts using markdown
-and github actions</title>
+    <title>EcoDynamics.jl: A virtual laboratory for ecological dynamics
+on heterogeneous spatial graphs</title>
     <script src="https://hypothes.is/embed.js" async></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css"
         integrity="sha256-l85OmPOjvil/SOvVt3HnSSjzF1TUMyT9eV0c2BzEGzU=" crossorigin="anonymous" />
@@ -239,14 +239,29 @@ and github actions</title>
 <body>
     <header>
         <div class="container">
-            <div class="header--title">Template to prepare preprints and
-manuscripts using markdown and github actions</div>
+            <div class="header--title">EcoDynamics.jl: A virtual
+laboratory for ecological dynamics on heterogeneous spatial graphs</div>
             <div class="header--authors">
                 <span class="header--author">
+                <a href="https://orcid.org/0000-0002-6506-6487" target="_blank">
+                    Michael D. Catchen
+                </a>
+                <sup class="affiliation">1,2,‡</sup>
+                </span><span class="header--author">
                 <a href="https://orcid.org/0000-0002-0735-5184" target="_blank">
                     Timothée Poisot
                 </a>
-                <sup class="affiliation">1,2,‡</sup>
+                <sup class="affiliation">2,3</sup>
+                </span><span class="header--author">
+                <a href="https://orcid.org/0000-0002-6004-4027" target="_blank">
+                    Laura Pollock
+                </a>
+                <sup class="affiliation">1,2</sup>
+                </span><span class="header--author">
+                <a href="https://orcid.org/0000-0001-6075-8081" target="_blank">
+                    Andrew Gonzalez
+                </a>
+                <sup class="affiliation">1,2</sup>
                 </span>
             </div>
         </div>
@@ -257,419 +272,1582 @@ manuscripts using markdown and github actions</div>
             
 
             <dl>
-                    <dt>Purpose</dt>
-                <dd>This template provides a series of scripts to render
-            a markdown document into an interactive website and a series
-            of PDFs.</dd>
-                    <dt>Internals</dt>
-                <dd>GitHub actions and a series of python scritpts. The
-            markdown is handled with <code>pandoc</code>.</dd>
-                    <dt>Motivation</dt>
-                <dd>It makes collaborating on text with GitHub easier,
-            and means that we never need to think about the output.</dd>
+                    <dt>Abstract</dt>
+                <dd>We present a software platform, EcoDynamics.jl, for
+            simulation of both deterministic and stochastic models of
+            population and community dynamics, either at a single
+            location or across a spatial graph with environmental
+            variation. Spatial graphs offer a flexible tool to model
+            heterogeneous landscape structure, the movement and
+            dispersal of organisms, and the impacts of environmental
+            variation on population dynamics. EcoDynamics.jl contains a
+            wide variety of models from the literature, and enables
+            quick extension to arbitrarily complex models via a common
+            API. The goal is for EcoDynamics.jl to serve as a “virtual
+            laboratory” for simulating synthetic time-series of
+            biodiversity data in heterogeneous landscapes in order to
+            benchmark and test inference tools with data where the
+            “ground truth” generative process is known. EcoDynamics.jl
+            is built on DifferentialEquations.jl, a state-of-the-art
+            library for simulating ordinary and stochastic differential
+            equations and difference equations. We use four separate
+            vignettes to show the distinct potential uses of
+            EcoDynamics.jl, focusing two on how landscape properties
+            affect dynamics, and the other two on inference from
+            data.</dd>
                 </dl>
 
             <div class="artifacts">
-                <a href="Poisot_2023_template_prepare_draft.pdf" title="Draft" target="_blank">Draft</a>
-                <a href="Poisot_2023_template_prepare_preprint.pdf" title="Preprint" target="_blank">Preprint</a>
-                <a href="Poisot_2023_template_prepare.odt" title="OpenDocument" target="_blank">Libre Office</a>
+                <a href="Catchen_et_al_2023_ecodynamicsjl_virtual_draft.pdf" title="Draft" target="_blank">Draft</a>
+                <a href="Catchen_et_al_2023_ecodynamicsjl_virtual_preprint.pdf" title="Preprint" target="_blank">Preprint</a>
+                <a href="Catchen_et_al_2023_ecodynamicsjl_virtual.odt" title="OpenDocument" target="_blank">Libre Office</a>
             </div>
         </section>
 
         <article>
-            <h1 id="abstract">Abstract</h1>
-            <p>Ecosystems are often modeled using differential
-            equations.</p>
-            <p>Platform for simulation of both determinsitic and
-            stochastic models of population and community dynamics,
-            either at a single location or across a spatial graph with
-            environmental variation.</p>
-            <p>Built on DifferentialEquations.jl, a state-of-the-art
-            library for DEs.</p>
-            <p>Enables inferences of dynamics. First Bayesian inference
-            of DE parameters.</p>
-            <p>SciML.</p>
             <h1 id="introduction">Introduction</h1>
             <p>Ecosystems are inherently dynamic—the abundance and
-            composition of different species at a different places is
-            constantly changing over time.</p>
-            <p>The study of the stability of dynamical systems over time
-            has deep connections with the modeling of ecosystem
-            dynamics, e.g. the study of chaotic dynamics emerged from
+            composition of different species at different places are
+            constantly changing over time. Understanding how assemblages
+            of species interact, change, and persist over time is one of
+            the foundational goals of ecology as a science. At the same
+            time, humans are radically impacting ecosystem dynamics
+            through land-use and climate change, and adapting to and
+            mitigating this change is essential to maintain the
+            ecosystem services humanity relies upon <span
+            class="citation" data-cites="Cardinale2012BioLos">(Cardinale
+            <em>et al.</em> 2012)</span>. Being able to detect changes
+            in biodiversity, attribute them to human and natural
+            drivers, and forecast their future dynamics is crucial to
+            maintaining biodiversity and the services it provides to
+            humans <span class="citation"
+            data-cites="Gonzalez2023FraDet">(Gonzalez <em>et al.</em>
+            2023a)</span>. However, ecosystems are perhaps the
+            prototypical example of a complex adaptive system <span
+            class="citation" data-cites="Levin1998EcoBio">(Levin
+            1998)</span>, meaning their dynamics are the product of a
+            vast number of interconnected processes, many of which are
+            inherently latent. If that were not enough, sampling of
+            ecosystem dynamics as it exists is inherently incomplete and
+            sparse in both space and time <span class="citation"
+            data-cites="Hughes2021SamBia">(Hughes <em>et al.</em>
+            2021)</span>. These factors together make the inference and
+            forecasting of ecosystem dynamics quite difficult, imposing
+            intrinsic limitations on prediction <span class="citation"
+            data-cites="Beckage2011LimPre Pennekamp2019IntPre Petchey2015EcoFor">(Beckage
+            <em>et al.</em> 2011; Pennekamp <em>et al.</em> 2019;
+            Petchey <em>et al.</em> 2015)</span>. Still, reliable
+            forecasts of biodiversity and ecosystem dynamics are
+            essential to guide decisions dedicated to mitigating and
+            adapting to this change <span class="citation"
+            data-cites="Urban2016ImpFor">(Urban <em>et al.</em>
+            2016)</span>.</p>
+            <p>This need has resulted in efforts to develop a Global
+            Biodiversity Observation System (GBiOS; <span
+            class="citation" data-cites="Gonzalez2023GloBio">Gonzalez
+            <em>et al.</em> (2023b)</span>), modeled off of the Global
+            Climate Observation System (GCOS). Part of the success of
+            GCOS can be ascribed to its widespread adoption of standards
+            and unified methods for modeling. There have been similar
+            proposals for a unified modeling platform for biodiversity
+            <span class="citation" data-cites="Urban2022CodLif">(Urban
+            <em>et al.</em> 2022)</span>, though this is largely impeded
+            by the culture of ad-hoc model development and poorly
+            adopted standards for data formatting and availability <span
+            class="citation" data-cites="Poisot2019EcoDat">(Poisot
+            <em>et al.</em> 2019)</span>. A further difficulty is that
+            in ecology, we also have no universal governing equations of
+            ecological dynamics. Though there is universality in the
+            fundamental forces driving the abundance and distribution of
+            species across space <span class="citation"
+            data-cites="Vellend2010ConSyn">(Vellend 2010)</span>, these
+            forces can manifest themselves in different ways,
+            e.g. different types of functional responses in
+            consumer-resource systems <span class="citation"
+            data-cites="Holling1966FunRes">(Holling 1966)</span>. So
+            although the processes are universal, the balance of each of
+            these processes manifested in a particular natural system is
+            always going to be latent and require inference from data.
+            This raises many questions: if we collect a time-series of a
+            consumer-resource system, how then do we decide which
+            functional response is “best” to forecast these species into
+            the future? How can we be sure our data is even sufficient
+            to distinguish between different dynamic regimes in the
+            first place? What is the forecasting horizon for different
+            ecological and evolutionary processes? And how do we ensure
+            we propagate the uncertainty in our data into our
+            projections to best inform decision making? These questions
+            become even more complex when we consider that all
+            ecological processes take place across space, where
+            dispersal and heterogeneity in environmental conditions
+            further complicate how these dynamics unfold.</p>
+            <p>Biodiversity data is inherently sparse and biased <span
+            class="citation" data-cites="Hughes2021SamBia">(Hughes
+            <em>et al.</em> 2021)</span>, and this can lead to
+            misleading or outright wrong conclusions due to underpowered
+            statistical inference <span class="citation"
+            data-cites="Leung2020CluCat">(Leung <em>et al.</em>
+            2020)</span>. In many scientific and engineering fields, it
+            is standard practice to test any tools used for inference on
+            simulated data before applying them to real data. This
+            assures our inference is a robust reflection of the data and
+            not providing erroneous results due to bugs in the inference
+            code, or underpowered samples leading to either type-i or
+            type-ii error. When using simulated data, we are sure of the
+            “ground-truth” processes and known level of measurement
+            error behind the data, so we can assess how well the given
+            method is by comparing its inference to the known values
+            (Figure fig. <strong>¿fig:inference?</strong>). This is
+            especially important for ecology, where our data is
+            inherently sparse—Earth’s biosphere is very large and
+            complex, there are millions of species undergoing dynamics
+            in space and time, and we can only sample tiny snippets in
+            time. The extent to which monitoring programs can cover all
+            of this is limited practically by funding and human
+            resources and time. The data we can collect is further
+            biased by the spatial locations it was collected and
+            unavoidably contains measurement error. We can never be
+            certain of the “ground truth” driving community dynamics in
+            nature. So, after collecting a dataset, we can never know if
+            our statistical analyses we employ would be capable of
+            capturing an effect if it was real. Typically power-analyses
+            used to address this problem (e.g. <span class="citation"
+            data-cites="Green2016SimPac">Green &amp; MacLeod
+            (2016)</span>) relate sample size to properties of the
+            statistical model itself (i.e. the probability of capturing
+            a ‘significant’ effect in a linear model), rather than being
+            based on the underlying mechanisms that generate the data
+            (although see <span class="citation"
+            data-cites="Tucker2021EffSam">Tucker <em>et al.</em>
+            (2021)</span> as an example).</p>
+            <figure>
+            <img src="./figures/in_silica_power_analysis.png"
+            alt="Conceptual figure outlining the benefits provided from in silico power analyses on mechanistic models. In the top left, we see the pipeline from which known “ground truth” statistical effect \beta_i becomes data in both the real world and in a simulated context. On the top right, we see the resulting information when data is obtained from the real world as opposed to repeated in silico simulations. In the case of in silico simulation, we have full information about the generating process, the sampling process (note the 3 sampling designs (bottom) involve the same number of total sampling events), and the amount of observational bias (in terms of both measurement error and temporal sparsity)." />
+            <figcaption aria-hidden="true">Conceptual figure outlining
+            the benefits provided from <em>in silico</em> power analyses
+            on mechanistic models. In the top left, we see the pipeline
+            from which known “ground truth” statistical effect <span
+            class="math inline"><em>β</em><sub><em>i</em></sub></span>
+            becomes data in both the real world and in a simulated
+            context. On the top right, we see the resulting information
+            when data is obtained from the real world as opposed to
+            repeated <em>in silico</em> simulations. In the case of
+            <em>in silico</em> simulation, we have full information
+            about the generating process, the sampling process (note the
+            3 sampling designs (bottom) involve the same number of total
+            sampling events), and the amount of observational bias (in
+            terms of both measurement error and temporal
+            sparsity).</figcaption>
+            </figure>
+            <p>Ecological processes are influenced by structured and
+            random variation in the environmental conditions across
+            space and time. The metacommunity framework <span
+            class="citation" data-cites="Leibold2004MetCon">(Leibold
+            <em>et al.</em> 2004)</span> enables us to simultaneously
+            consider the effects of the local environment, competition
+            within populations, interactions between species, and
+            dispersal of different species across space. The balance of
+            the fundamental processes of demographic selection, drift,
+            dispersal, and speciation <span class="citation"
+            data-cites="Vellend2010ConSyn">(Vellend 2010)</span> leads
+            to qualitatively distinct metacommunity paradigms <span
+            class="citation" data-cites="Thompson2020ProMet">(Thompson
+            <em>et al.</em> 2020)</span>. Central to metacommunity
+            theory is the abstraction that a landscape can be modeled as
+            a set of discrete habitat patches connected via dispersal.
+            The spatial graph framework allows us to apply tools from
+            graph theory to understand landscape connectivity <span
+            class="citation" data-cites="Dale2010GraSpa">(Dale &amp;
+            Fortin 2010)</span> and to model the heterogeneity in
+            dispersal among species <span class="citation"
+            data-cites="Albert2017AppNet Savary2023HetDis">(Albert
+            <em>et al.</em> 2017; Savary <em>et al.</em> 2023)</span>.
+            More generally, this enables us to represent metacommunity
+            dynamics as dynamics on a network of networks, where within
+            each spatial node there is a network of species, and the
+            edges of the spatial graph model dispersal for each species
             <span class="citation"
-            data-cites="May1972">(<strong>May1972?</strong>)</span>’s
-            model of the logistic map undergoing a fork bifurcation
-            under increasing growth rates.</p>
-            <p>Models that describe how ecological systems at
-            population, community, or ecosystem levels over time
-            (<em>ecosystem dynamics</em>, henceforth) typically take
-            form of differential equations <span class="citation"
-            data-cites="Lotka">(<strong>Volterra?</strong>)</span>
-            (where time is continuous) or difference-equations <span
-            class="citation"
-            data-cites="May">(<strong>May?</strong>)</span> (where time
-            is discrete).</p>
-            <p>These classic models aren’t perfect—they are
-            abstractions. In reality, species abundances inherently
-            changes over time as a result of stochastic processes, both
-            selective and random, combined with dispersal <span
-            class="citation"
-            data-cites="Velland2010ConSyn">(<strong>Velland2010ConSyn?</strong>)</span>.</p>
-            <p>Here, we showcase <code>EcoDynamics.jl</code>, a software
+            data-cites="Hutchinson2019SeeFor Pilosof2017MulNat">(Hutchinson
+            <em>et al.</em> 2019; Pilosof <em>et al.</em>
+            2017)</span>.</p>
+            <p>Here, we present <code>EcoDynamics.jl</code>, a software
             toolkit for simulating a wide variety of models of
             population and community dynamics, both in isolation and as
             reaction-diffusion dynamics on spatial-graphs.
-            <code>EcoDynamics</code> enables both deterministic and
-            stochatic dynamics, and has the potential for environmental
-            covariates associated with nodes in the spatial graph to
-            affect demographic parameters, enabling virtual experiments
-            about the effects of spatial environmental variation on
-            population and community processes.</p>
-            <p>EcoDynamics.jl includes a rich library of models of
-            population and community dynamics from the literature, and
-            enables easy addition of customized models.</p>
-            <p>This toolkit is built upon DifferentialEquations.jl <span
+            EcoDynamics.jl enables both deterministic and stochastic
+            dynamics, and has the potential for environmental covariates
+            associated with nodes in the spatial graph to affect
+            demographic parameters, enabling virtual experiments about
+            the effects of spatial environmental variation on population
+            and community processes. EcoDynamics.jl includes a rich
+            library of models of population and community dynamics from
+            the literature, and enables easy addition of customized
+            models. This toolkit is built upon DifferentialEquations.jl
+            <span class="citation"
+            data-cites="Rackauckas2017DifJl">(Rackauckas &amp; Nie
+            2017b)</span>, a high-performance library for ordinary and
+            stochastic differential and difference equations—this
+            integration enables differential equation solvers orders of
+            magnitude faster than e.g. deSolver in R <span
             class="citation"
-            data-cites="cite">(<strong>cite?</strong>)</span>, a library
-            for ordinary and stochastic differential equations.</p>
-            <p>Why is this integration important? - Orders of magnitude
-            faster than deSolver, for example. - Native integrations
-            with other Julia packages for inference. - Turing.jl for
-            Bayesian inference of parameters - SciML, DiffEqFlux for
-            PINNs - Arbitrarily complicated models of stochasticity.</p>
-            <p>Development of Scientific Machine-Learning [SciML; <span
-            class="citation"
-            data-cites="Rackauckas2021UniDif">(<strong>Rackauckas2021UniDif?</strong>)</span>].
-            Combine mechanistic, domain specific models (in the form of
-            DEs) with data-driven models (neural networks).</p>
-            <p>Major angle: simulation of observing dynamics is
-            important. We can never observe ground truth in nature. So,
-            we never know if our statistical analyses we employ would be
-            capable of capturing an effect if it was real. We can
-            attempt to estimate this using power analysis, but
-            simulation provides us a case where we can have a ‘virtual
-            laboratory’ <span class="citation"
-            data-cites="VolkerGrimm">(<strong>VolkerGrimm?</strong>)</span>
-            which can provide “ground-truth” that we use. Quite common
-            in physical sciences: test your analysis software on
-            simulated data to make sure it works <em>before</em> you try
-            using it with real data.</p>
-            <h1 id="software-design">Software Design</h1>
-            <h2 id="overview">Overview</h2>
-            <p>ere we overview the design and usage patterns in
+            data-cites="Rackauckas2017DifJl Rackauckas2019ConMod">(Rackauckas
+            &amp; Nie 2017b, 2019)</span>. This also enables integration
+            with other parts of the Julia ecosystem: Turing.jl <span
+            class="citation" data-cites="Ge2018TurLan">(Ge <em>et
+            al.</em> 2018)</span> or STAN.jl for Bayesian inference of
+            differential equation parameters, and integrations with the
+            rapidly burgeoning Scientific Machine-Learning (SciML)
+            ecosystem <span class="citation"
+            data-cites="Rackauckas2021UniDif">(Rackauckas <em>et
+            al.</em> 2021)</span>, which enables inference by combining
+            mechanistic, domain specific models (in the form of
+            differential/difference equations) with data-driven models
+            (neural networks) to account for and discover missing
+            dynamics in complex systems <span class="citation"
+            data-cites="Chen2019RevCom Cranmer2020DisSym Martin2018RevEco">(Chen
+            <em>et al.</em> 2019; Cranmer <em>et al.</em> 2020; Martin
+            <em>et al.</em> 2018)</span>.</p>
+            <p>Aside from the sheer technical merits and advantages,
+            EcoDynamics.jl also aims to serve as a platform that changes
+            how we think about inference from data in ecology. When
+            doing power analyses independent from the underlying
+            mechanistic process, we lose important details about the
+            underlying process generating the data, which is
+            particularly relevant in planning the spatial and temporal
+            aspects of sampling design. EcoDynamics.jl provides a
+            “virtual laboratory” <span class="citation"
+            data-cites="Grimm2013IndMod">(Grimm &amp; Railsback
+            2013)</span> for generating synthetic data under known
+            conditions to aid in the planning and design of monitoring
+            programs and the testing of scientific software for
+            inference. We first provide an overview of the design of
+            EcoDynamics.jl, and then explore a glimpse of the potential
+            uses of the software using case-studies.</p>
+            <h1 id="software-overview">Software overview</h1>
+            <p>Here we overview the design and common usage patterns in
             EcoDynamics.jl.</p>
+            <h2 id="why-julia">Why Julia?</h2>
+            <p>Why write this library in Julia? It is true that Julia is
+            not the most-adopted language among ecologists, although it
+            offers several advantages for building a package with the
+            design goals of EcoDynamics.jl. Julia is designed for
+            scientific computing, and offers the syntax of a high-level
+            language with the performance of a low-level, compiled
+            language <span class="citation"
+            data-cites="Bezanson2012JulFas">(Bezanson <em>et al.</em>
+            2012)</span>. A common pattern in developing software for
+            scientific purposes is to first develop a prototype of the
+            software in a high-level interpreted language (e.g. Python,
+            R), and then to develop a second version for use at scale in
+            a statically typed, compiled language (like C++ or
+            FORTRAN).</p>
+            <p>These latter languages tend to have much higher
+            performance and therefore for the many computationally
+            intensive methods used in scientific computing, it is worth
+            making the effort to port software into these more
+            complicated languages. However, there is also a large
+            downside here: languages like C++ are far less known among
+            scientists (and particularly ecologists), and as more of the
+            codebase used by scientists are written in lower-level
+            languages, they can easily customize software for distinct
+            purposes. The decreased extensibility of software tools
+            caused by this two-language problem leads to bad outcomes:
+            duplication of code and therefore effort, and furthers the
+            proliferation of tools that use slightly different
+            methodologies and standards to accomplish the same goal.
+            Julia aims to solve the two-language problem by providing a
+            language that is written like a high-level language, but
+            uses a technique called just-in-time (JIT) compilation to
+            compile Julia syntax into machine code that executes just as
+            quickly as compiled C++.</p>
+            <p>The second reason is Julia’s state-of-the-art ecosystem
+            for differential equations. Over the previous several
+            decades of research in numerical computing methods for
+            differential equations, many advances have been made for
+            improving the speed, stability, and accuracy of the
+            numerical integration methods. DifferentialEquations.jl
+            provides a large library to modern integration methods and
+            automates selection of the appropriate method based on the
+            model specification <span class="citation"
+            data-cites="Rackauckas2019ConMod">(Rackauckas &amp; Nie
+            2019)</span>.</p>
+            <h2 id="design-principles">Design Principles</h2>
+            <p>While EcoDynamics.jl enables simulation of dynamics in a
+            single place (locally), its main goal is to enable
+            reaction-diffusion models on spatial graphs. EcoDynamics.jl
+            is perfectly adequate for simulating the dynamics of
+            single-species systems, the core design goals are motivated
+            by simulating communities on spatial graphs, where
+            environmental variation across each patch/node can
+            independently influence the dynamics of each species. The
+            design was also based around a particular emphasis on
+            studying regime shifts in the resulting composition of
+            species across space at different levels of neutral, niche,
+            and dispersal processes. Using spatial graphs enables
+            environmental heterogeneity via arbitrary environmental
+            predictors and covariates, and explicit interspecific
+            variation in response to the environment via
+            species-specific traits.</p>
+            <p>EcoDynamics.jl leverages Julia’s type system and
+            multiple-dispatch system to use a common interface for
+            constructing and running models. Models are built by calling
+            them like a function,
+            e.g. <code>RosenzweigMacArthur()</code>,
+            <code>Hanski1994()</code>, etc., where parameters can be
+            passed as named keyword arguments. Then, the pattern for
+            constructing and running models follows the typical form
+            (using Rosenzweig-MacArthur consumer-resource dynamics as an
+            example):</p>
+            <pre><code>rm = RosenzweigMacArthur()
+prob = problem(rm)
+trajectory = simulate(prob)</code></pre>
+            <p>Multiple-dispatch is a feature of the Julia language that
+            enables the same function name (e.g. <code>problem</code> or
+            <code>simulate</code> above) to have different behavior
+            based on the <em>type</em> of the inputs it is passed. This
+            feature can be used in layers: for example,
+            <code>problem</code> first <em>dispatches</em> (in the
+            parlance of the Julia language) on the properties of models
+            (described in the below section) which then pass specific
+            objects and functions that enable the variety of models
+            included in the library.</p>
+            <p>Why do we need a package for this purpose? This is the
+            meta-question that underlies this manuscript. Why build a
+            tool to do this—how much utility is gained by having a
+            prewritten set of tools for reaction-diffusion dynamics on
+            spatial graphs as opposed to an interested user implementing
+            it from scratch? There is a fundamental point to be made
+            about all (good) scientific software here: it should never
+            be harder for a user, regardless of programming experience
+            in a particular language or in general, to learn to use a
+            package to do something than it would be to write code to do
+            that something from scratch. If this is not the case, the
+            package is either unnecessary, bad, or both. What, then,
+            should a good package accomplish? (1) Minimum friction from
+            going to nothing to a minimum working example. This is where
+            first impressions are made, and first impressions count a
+            lot in software. (2) Documentation matters a lot, but that
+            isn’t something I can address in this paper outside of
+            linking to it and saying “it has good documentation”. (3)
+            Standardization of tools and methodology. If a particular
+            abstraction for modeling a system is common enough, there is
+            going to be a ton of wasted effort in the duplication of
+            code for the same purpose, and it becomes more likely that
+            some instances of this duplicated code will contain bugs.
+            wIf many people are compelled to build the same thing
+            independently, there is clearly some level of community
+            demand for it. The point of open-source software is that the
+            interface can be adapted to make the most sense to the most
+            people. I think there is a sizable research community that
+            wants to be able to run models like this without having to
+            build the entire thing from scratch. There are arguably
+            similar tools that exist, e.g. rangeshiftr, but these tools
+            are limited in their extendability. One of the core design
+            goals is extensibility first, and that should make this
+            appealing to the general community of researchers interested
+            in these types of models.</p>
+            <p>Finally, one of the core goals of EcoDynamics.jl is to be
+            extendable—that is it will almost always be easier for a
+            user to add a new model or additional feature than to
+            rewriting a new set of tools to reaction-diffusion dynamics
+            on spatial graphs with the desired model/feature.
+            EcoDynamics.jl manages this by providing a uniform API for
+            all models in the library, and extending a model is as
+            straightforward as defining the model <code>struct</code>
+            and implementing the <code>∂u</code> method describing the
+            rule to update from one timestep to the next. Extra methods
+            for plotting and other utilities are optional, and are not
+            required to get a model running from scratch.</p>
+            <h2 id="package-design">Package Design</h2>
             <figure>
             <img src="./figures/design.png" id="fig:design"
-            alt="Figure 1: Overview" />
-            <figcaption aria-hidden="true">Figure 1:
-            Overview</figcaption>
+            alt="Figure 1: Overview of the design of EcoDynamics.jl. Top left: the model library, which provides Models which can be turned into Problems with the problem method (along with optional Drift inputs, and niche functions). Bottom left: the spatial graph subsystem, which takes a set of coordinates and a dispersal kernel to produce a diffusion matrix that models dispersal on a spatial graph. Bottom right: the external libraries in the Scientific Machine-Learning (SciML) ecosystem, the deep learning ecosystem, and the Bayesian inference ecosystem" />
+            <figcaption aria-hidden="true">Figure 1: Overview of the
+            design of EcoDynamics.jl. Top left: the model library, which
+            provides <code>Models</code> which can be turned into
+            <code>Problem</code>s with the <code>problem</code> method
+            (along with optional <code>Drift</code> inputs, and
+            <code>niche</code> functions). Bottom left: the spatial
+            graph subsystem, which takes a set of coordinates and a
+            dispersal kernel to produce a diffusion matrix that models
+            dispersal on a spatial graph. Bottom right: the external
+            libraries in the Scientific Machine-Learning (SciML)
+            ecosystem, the deep learning ecosystem, and the Bayesian
+            inference ecosystem</figcaption>
             </figure>
-            <ul>
-            <li>dispersal kernel
-            <ul>
-            <li>dispersal potential as a concept</li>
-            <li>diffusion matrix</li>
-            </ul></li>
-            </ul>
-            <h2 id="model-index">Model index</h2>
-            <p>Note that all <code>Population</code> and
-            <code>Community</code> models can be run on spatial
-            graphs.</p>
-            <table>
-            <colgroup>
-            <col style="width: 15%" />
-            <col style="width: 26%" />
-            <col style="width: 20%" />
-            <col style="width: 22%" />
-            <col style="width: 15%" />
-            </colgroup>
-            <thead>
-            <tr class="header">
-            <th><strong>Scale</strong></th>
-            <th><strong>Name</strong></th>
-            <th><strong>Time</strong></th>
-            <th><strong>Aliases</strong></th>
-            <th><strong>Reference</strong></th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr class="odd">
-            <td>Population</td>
-            <td>Logistic Model</td>
-            <td>Continuous</td>
-            <td>-</td>
-            <td></td>
-            </tr>
-            <tr class="even">
-            <td>Population</td>
-            <td>Beverton-Holt</td>
-            <td>Discrete</td>
-            <td>-</td>
-            <td></td>
-            </tr>
-            <tr class="odd">
-            <td>Population</td>
-            <td>Ricker Model</td>
-            <td>Discrete</td>
-            <td>-</td>
-            <td></td>
-            </tr>
-            <tr class="even">
-            <td>Population</td>
-            <td>SIR Model</td>
-            <td>Discrete</td>
-            <td>-</td>
-            <td></td>
-            </tr>
-            <tr class="odd">
-            <td>Community</td>
-            <td>Trophic Lotka-Volterra</td>
-            <td>Continuous</td>
-            <td>-</td>
-            <td></td>
-            </tr>
-            <tr class="even">
-            <td>Community</td>
-            <td>Rosenzweig-Macarthur</td>
-            <td>Continuous</td>
-            <td>LV w/ Holling Type II</td>
-            <td></td>
-            </tr>
-            <tr class="odd">
-            <td>Community</td>
-            <td>Holling Type III</td>
-            <td>Continuous</td>
-            <td></td>
-            <td></td>
-            </tr>
-            <tr class="even">
-            <td>Community</td>
-            <td>DeAngelis-Beddington</td>
-            <td>Continuous</td>
-            <td></td>
-            <td></td>
-            </tr>
-            <tr class="odd">
-            <td>Community</td>
-            <td>Yodzis-Innes</td>
-            <td>Continuous</td>
-            <td></td>
-            <td></td>
-            </tr>
-            <tr class="even">
-            <td>Community</td>
-            <td>Competitive Lotka-Volterra</td>
-            <td>Continuous</td>
-            <td></td>
-            <td></td>
-            </tr>
-            <tr class="odd">
-            <td>Metapopulation</td>
-            <td>Levins Metapopulation</td>
-            <td>Continuous/Discrete</td>
-            <td></td>
-            <td></td>
-            </tr>
-            <tr class="even">
-            <td>Metapopulation</td>
-            <td>Incidence-Funciton Model</td>
-            <td>Discrete</td>
-            <td></td>
-            <td>[Hanski1994]</td>
-            </tr>
-            <tr class="odd">
-            <td>Metacommunity</td>
-            <td>Neutral Model</td>
-            <td>Continuous</td>
-            <td></td>
-            <td>[Hubbell2001]</td>
-            </tr>
-            <tr class="even">
-            <td>Metacommunity</td>
-            <td>Process-based Competition</td>
-            <td>Discrete</td>
-            <td></td>
-            <td>[Thompson2020]</td>
-            </tr>
-            </tbody>
-            </table>
-            <h1 id="case-studies">Case studies</h1>
-            <p>Here we consider a few vignettes of how EcoDynamics.jl
-            can be used.</p>
-            <p>The first focuses on its use for simulation.</p>
-            <p>The second focuses on its use for inference. First Bayes,
-            second using Scientific Machine-Learning. Taking inspiration
-            from Physics-Informed-Neural-Networks (PINNs), we propose an
-            “Ecology-Informed-Neural-Network” (EINN) model that can
-            account for a lack of knowledge about the functional
-            response in a consumer-resource system.</p>
+            <h3 id="models">Models</h3>
+            <p>Every model in EcoDynamics is associated with four
+            properties that provide instructions to the package
+            internals on how to simulate it. The first is the
+            <em>measurement</em>, or the type of state space the model
+            takes place in (biomass, abundance, and occupancy are what
+            is currently supported). The second is the model’s
+            <em>scale</em> (population, community, metapopulation, or
+            metacommunity)—note that this refers to the scale that a
+            model was originally defined at, e.g. Lotka-Volterra is
+            always a <code>Community</code> scale, regardless of whether
+            it had been made spatial with <code>spatialize</code>. The
+            third is the <em>temporal domain</em>, i.e. whether the
+            model exists in discrete or continuous time. Finally, there
+            is <em>spatialness</em>, which describes whether a model is
+            associated with a spatial graph or is only at a single
+            location.</p>
+            <h3
+            id="spatial-graphs-and-reaction-diffusion-models">Spatial
+            Graphs and Reaction-Diffusion Models</h3>
+            <p>Modeling patchy landscapes with spatial graphs has proven
+            a useful abstract in ecology <span class="citation"
+            data-cites="Dale2010GraSpa">(Dale &amp; Fortin 2010)</span>.
+            Although explicitly discretized Euclidean space has been
+            used in ecological model (e.g. <span class="citation"
+            data-cites="Hastings1978GloSta">Hastings (1978)</span>), the
+            complexity induced by this model of space, as well as the
+            difficulty of adequate describing spatial heterogeneity in
+            this framework, often makes the computational costs with
+            this type of model not worth the benefit. In contrast,
+            spatial graphs that explicitly represent heterogeneity in
+            the environment and in dispersal have widespread utility in
+            ecological modeling <span class="citation"
+            data-cites="Hutchinson2019SeeFor Savary2023HetDis">(Hutchinson
+            <em>et al.</em> 2019; Savary <em>et al.</em> 2023)</span>
+            and conservation <span class="citation"
+            data-cites="Albert2017AppNet">(Albert <em>et al.</em>
+            2017)</span>. Spatial graphs can easily be adapted to
+            simulate spatial ecological dynamics by adapting the
+            reaction-diffusion framework <span class="citation"
+            data-cites="Okubo1978DifEco">(Okubo &amp; Levin
+            1978)</span>, which is widespread for modeling processes
+            with both spatial and local components across a wide-variety
+            of domains, and which originated in its modern form for
+            biology specifically (Turing’s model of morphogenesis; <span
+            class="citation" data-cites="Turing1952CheBas">Turing
+            (1952)</span>).</p>
+            <p>Reaction-diffusion dynamics follow the form</p>
+            <p><span class="math display">$$\frac{d\vec{N}}{dt} =
+            g(f(\vec{N}))$$</span></p>
+            <p>where <span class="math inline"><em>N⃗</em></span> is a
+            vector where each element is a (not necessarily a scalar)
+            measurement associated with each site, <span
+            class="math inline"><em>f</em></span> is a function that
+            describes the local dynamics and applies that same
+            transformation to each element of <span
+            class="math inline"><em>N⃗</em></span>, and <span
+            class="math inline"><em>g</em>(<em>N⃗</em>)</span> is a
+            function that describes diffusion across space.</p>
+            <p>More specifically, in spatially continuous models of
+            ecological dynamics (e.g. <span class="citation"
+            data-cites="Hastings1978GloSta">Hastings (1978)</span>),
+            where each spatial location has a two-dimensional coordinate
+            <span
+            class="math inline"><em>x⃗</em> = (<em>x</em><sub><em>i</em></sub>,<em>y</em><sub><em>i</em></sub>)</span>
+            associated with it, <span
+            class="math inline"><em>g</em>(<em>x</em>)</span> is the
+            Laplacian operator</p>
+            <p><span class="math display">$$g(\vec{N}) = D_i \nabla^2
+            N_i = D_i \frac{\partial^2
+            N_i}{\partial^2\vec{x}}$$</span></p>
+            <p>where <span
+            class="math inline"><em>D</em><sub><em>i</em></sub></span>
+            is a diffusion coefficient associated with each species.</p>
+            <p>Analogously, reaction-diffusion dynamics can be described
+            for spatial graphs by utilizing the Laplacian as it is
+            defined on graphs—the matrix <span
+            class="math inline"><strong>L</strong> = <strong>K</strong> − <strong>A</strong></span>,
+            where <span class="math inline"><strong>K</strong></span> is
+            a matrix with the degree of each node <span
+            class="math inline"><em>k</em><sub><em>i</em></sub></span>
+            on its diagonal, and <span
+            class="math inline"><strong>A</strong></span> is the
+            adjacency matrix <span class="citation"
+            data-cites="Gibert2019LapMat">(Gibert &amp; Yeakel
+            2019)</span>. The topology of the spatial graph can reveal
+            considerable information about how the dynamics will unfold
+            across space—the eigenvalue spectrum of the Laplacian
+            governs key properties of the realized spatial dynamics
+            <span class="citation" data-cites="Gibert2019LapMat">(Gibert
+            &amp; Yeakel 2019)</span>.</p>
+            <p>A common method to describe dispersal probability between
+            patches/nodes is using a dispersal kernel—a function <span
+            class="math inline"><em>k</em></span> that maps a physical
+            distance <span class="math inline"><em>d</em></span> to a
+            probability that an individual will successfully disperse
+            that distance. We propose a modification to dispersal
+            kernels that makes them more naturally suited to diffusion
+            dynamics on a graph. For each node in the spatial graph
+            <span class="math inline"><em>i</em></span> at coordinate
+            <span
+            class="math inline"><em>x</em><sub><em>i</em></sub></span>,
+            we first compute the dispersal kernel matrix for each pair
+            of patches, <span
+            class="math inline"><em>K</em><sub><em>i</em><em>j</em></sub></span>
+            as</p>
+            <p><span class="math display">$$K_{ij} = \begin{cases}
+                k(|x_i - x_j|) \quad\ &amp;\text{if}\ |x_i - x_j| &lt;
+            \epsilon \\
+                0 &amp;\text{else}
+            \end{cases}
+            $$</span></p>
+            <p>where <span class="math inline"><em>ϵ</em></span> is the
+            maximum dispersal distance of the organism, and then
+            renormalize across each row (where <span
+            class="math inline"><em>i</em></span> is the source of
+            dispersal) to produce the dispersal potential <span
+            class="math inline"><em>Φ</em><sub><em>i</em><em>j</em></sub></span>
+            as</p>
+            <p><span class="math display">$$\Phi_{ij} = \begin{cases}
+                \frac{K_{ij}}{\sum_k K_{ik}} \quad\ &amp;\text{if}\
+            \sum_k K_{ik} &gt; 0 \\
+                0 &amp;\text{else}
+            \end{cases}
+            $$</span></p>
+            <p>This forms a categorical distribution for each node/patch
+            <span class="math inline"><em>i</em></span> that describes
+            where individuals successfully dispersing from that patch
+            are going to end up. To turn this into a full-fledged
+            reaction-diffusion model, we need one more step, which is
+            the probability that any given individual disperses durings
+            its lifetime, <span class="math inline"><em>m</em></span>.
+            This final step allows us to construct the diffusion matrix
+            <span class="math inline"><em>D</em></span> as</p>
+            <p><span class="math display">$$D_{ij} = \begin{cases}
+                m_i \Phi_{ij} &amp;\text{if}\ i\neq j \\
+                0 &amp;\text{if}\ i =j
+            \end{cases}
+            $$</span></p>
+            <p>which is a stochastic matrix (for each source patch <span
+            class="math inline"><em>i</em></span>, the values over all
+            possible targets <span class="math inline"><em>j</em></span>
+            forms a distribution), ensuring conservation of mass in the
+            system. From this we can construct our diffusion functio
+            <span
+            class="math inline"><em>g</em>(<em>x</em><sub><em>i</em></sub>)</span>
+            for each species <span class="math inline"><em>i</em></span>
+            as</p>
+            <p><span
+            class="math display"><em>g</em>(<em>x</em><sub><em>i</em></sub>) = <em>D</em><sub>(<em>i</em>)</sub><sup><em>T</em></sup><em>f</em>(<em>N</em><sub><em>i</em></sub>)</span></p>
+            <p>where <span
+            class="math inline"><em>f</em>(<em>N</em><sub><em>i</em></sub>)</span>
+            describes local dynamics.</p>
+            <h3 id="environmental-heterogeneity">Environmental
+            heterogeneity</h3>
+            <p>EcoDynamics enables heterogeneity in the environment by
+            enabling covariates of arbitrary type to be associated with
+            each node. Covariates can be ascribed to each node by
+            providing a raster in the same spatial coordinate system,
+            drawing randomly from a known distribution, generated via
+            NeutralLandscapes.jl, or assigned manually. These
+            environmental covariates have the potential to affect
+            ecological dynamics when paired with a user provided
+            <code>niche</code> function, which maps environmental
+            covariates to unique values of the parameters for the
+            dynamics model in each node/patch.</p>
+            <h3 id="inter-specific-variation">Inter-specific
+            variation</h3>
+            <p>Another crucial component to many models of community
+            dynamics is variation in traits among species, which can
+            affect both their impact on other species and effect of
+            environmental conditions on dynamics. To accommodate for
+            these effects in EcoDynamics.jl, we use a data type called
+            <code>SpeciesPool</code> to store these trait values. As an
+            example, in <span class="citation"
+            data-cites="Yodzis1992BodSiz">Yodzis &amp; Innes
+            (1992)</span>, variation in the body-size is a crucial
+            parameter required by the model. For this and similar
+            models, a <code>SpeciesPool</code> is required as given a
+            default value, but can be passed as a custom input to the
+            constructor. Species specific traits are also passed as
+            arguments to the <code>niche</code> function if it is
+            provided as an input. This enables interaction between
+            species traits and environmental conditions, including the
+            possibility of more complex models of dynamics that include
+            interactions between traits and the environment.</p>
+            <h3 id="stochastic-dynamics">Stochastic Dynamics</h3>
+            <p>Ecological dynamics are inherently stochastic—there is
+            randomness in the variation of abiotic environmental
+            conditions over time at different scales and intrinsic
+            variation in ecological processes <span class="citation"
+            data-cites="Melbourne2008ExtRis">(Melbourne &amp; Hastings
+            2008)</span>. EcoDynamics.jl enables arbitrarily complex
+            models of stochasticity via the state-of-the-art integrators
+            for stochastic differential equations (SDEs) included with
+            DifferentialEquations.jl <span class="citation"
+            data-cites="Rackauckas2020StaHig Rackauckas2017AdaMet">(Rackauckas
+            &amp; Nie 2017a; Rackauckas &amp; Nie 2020)</span>.
+            Similarly, within DifferentialEquations.jl discrete-time
+            models can be either deterministic or stochastic, without
+            using different integration algorithms.</p>
+            <h3 id="observation-models">Observation Models</h3>
+            <p>Crucial to one of the core design goals of EcoDynamics.jl
+            — providing “ground truth” dynamics to benchmark inference
+            methods — is the ability to simulate the process of
+            observation and its associated error. The processes that
+            contribute to observation error in nature are numerous:
+            there is of course standard measurement error, where the
+            observed value of a variable is some amount different from
+            the true value. But there are also biases imposed on data
+            based on where and when they are collected. This highlights
+            the importance of including a model of the observation
+            process when doing power analysis using mechanistic
+            models.</p>
+            <h1 id="case-studies">Case Studies</h1>
+            <p>Here we present two sets of case-studies that demonstrate
+            a variety of functionality in EcoDynamics.jl. The first pair
+            of case-studies focuses on the spatial modeling features of
+            EcoDynamics.jl, and the second pair focuses on doing
+            inference from data using interfaces to tools for both
+            Bayesian inference and Scientific Machine-Learning
+            (SciML).</p>
             <h2
-            id="measuring-the-inflationary-effect-and-max-dispersal-distance">Measuring
-            the inflationary effect and max dispersal distance</h2>
-            <p>The inflationary effect <span class="citation"
-            data-cites="Gonzalez2002">(<strong>Gonzalez2002?</strong>)</span>.
-            Sources and sinks [Pilliam1988].</p>
-            <p>We measure how many patches persist over time as the
-            number of patches that are sinks increases. The strength of
-            the inflationary effect is a function of connectivity,
-            particularly maximum dispersal distance. In spatially
-            autocorrelated environments,</p>
+            id="phase-transitions-in-the-percolation-of-habitat-connectivity">Phase
+            transitions in the percolation of habitat connectivity</h2>
+            <p>We begin by examining the effect of maximum dispersal
+            distance, a trait with important consequences for home and
+            total range size <span class="citation"
+            data-cites="Bowman2002DisDis Whitmee2013PreDis">(Bowman
+            <em>et al.</em> 2002; Whitmee &amp; Orme 2013)</span>, on
+            landscape connectivity, and demonstrate a sudden
+            phase-transition in the connectivity patchy landscapes. In
+            the real world, there are intrinsic biological constraints
+            that make dispersal beyond a certain distance effectively
+            impossible. As the maximum dispersal distance of the species
+            in question changes, so does the topology of the resulting
+            spatial graph, depending on how many patches there are and
+            where they are located, this means that there are patches
+            that are entirely isolated, or small “meso-populations” that
+            interact with a few other patches, but not the larger system
+            as a whole (figure 3).</p>
+            <p>A classic result in network science is the phase
+            transition associated with the emergence of a
+            “giant-component” in random Erdos-Renyi graphs <span
+            class="citation"
+            data-cites="Erdos1959RanGra Newman2018Net">(Erdos &amp;
+            Renyi 1959; Newman 2018)</span>. In this case, a
+            “giant-component” refers to a set of at least half the nodes
+            in the network that are connected via some path. A similar
+            phase transition occurs here as we increase the maximum
+            dispersal distance of a hypothetical species. In Figure
+            fig. 2 (left), we see the proportion of patches that are
+            connected via some path (“in the largest component”) as a
+            function of maximum dispersal distance, and find that this
+            transitions becomes increasingly critical as the number of
+            patches increases—meaning the jump from almost no patches
+            being connected to nearly all being connected occurs
+            increasingly rapidly as soon as a critical threshold of
+            maximum dispersal distance has been reached.</p>
+            <p>Each point in Figure fig. 2 represents 512 random spatial
+            graphs generated at that given maximum dispersal distance. A
+            single instance can be run with</p>
+            <pre><code>function run_instance(num_patches, max_dispersal_distance)
+    dk = DispersalKernel(max_distance=max_dispersal_distance)
+    sg = SpatialGraph(Coordinates(num_patches), dk)
+    g = Graph(sg.potential .&gt; 0)
+    component_sizes = length.(Graphs.connected_components(g))
+    return maximum(component_sizes)
+end</code></pre>
+            <p>which computes the size of the largest component of the
+            spatial graph using the Graphs.jl package.</p>
             <figure>
-            <img src="./figures/inflationary_annote.png" alt="TODO" />
-            <figcaption aria-hidden="true">TODO</figcaption>
+            <img src="./figures/percolation.png" id="fig:percolation"
+            alt="Figure 2: Left: the percolation of habitat connectivity measured as the proportion of patches in the largest connected component (vertical axis) and the maximum dispersal distance of a hypothetical species (horizontal axis). Different colors indicate different numbers of patches—note that the transition to fully connected becomes more critical as the number of patches increases. Right: examples of different habitat networks under different maximum dispersal distances, emphasizing how this changes the resulting topology of the spatial graph." />
+            <figcaption aria-hidden="true">Figure 2: Left: the
+            percolation of habitat connectivity measured as the
+            proportion of patches in the largest connected component
+            (vertical axis) and the maximum dispersal distance of a
+            hypothetical species (horizontal axis). Different colors
+            indicate different numbers of patches—note that the
+            transition to fully connected becomes more critical as the
+            number of patches increases. Right: examples of different
+            habitat networks under different maximum dispersal
+            distances, emphasizing how this changes the resulting
+            topology of the spatial graph.</figcaption>
             </figure>
             <h2
-            id="final-percolation-of-spatial-graphs-with-max-dispersal.-forcing-params-max_distance-and-num_patches">Final:
-            percolation of spatial graphs with max dispersal. Forcing
-            params: max_distance and num_patches</h2>
+            id="measuring-the-spatial-inflationary-effect-as-a-function-of-dispersal-distance">Measuring
+            the spatial inflationary effect as a function of dispersal
+            distance</h2>
+            <p>A well-known phenomenon in patchy landscapes is that the
+            inherent variation in habitat patch quality can lead to some
+            patches acting as “sources”, where the intrinsic growth rate
+            of a population is positive, and “sinks”, where the growth
+            rate is negative <span class="citation"
+            data-cites="Pulliam1988SouSin">(Pulliam 1988)</span>. The
+            balance of both sources and sinks determines the persistence
+            of a metapopulation in a patchy landscape, though this may
+            not be as simple as a majority-rule decision. Here we
+            demonstrate that landscape connectivity plays a crucial role
+            in determining whether there is a “colonization-credit”
+            <span class="citation"
+            data-cites="Cristofoli2010ColCre">(Cristofoli <em>et
+            al.</em> 2010)</span> that enables the metapopulation to
+            persist, despite a minority of patches having positive
+            growth rate. This effect has been documented in a large
+            number of systems <span class="citation"
+            data-cites="Bagaria2015AssCoe Duplisea2016ExtDeb Haddou2022WidExt Rumpf2019ExtDeb">(Bagaria
+            <em>et al.</em> 2015; Duplisea <em>et al.</em> 2016; Haddou
+            <em>et al.</em> 2022; Rumpf <em>et al.</em> 2019)</span> and
+            is likely to be important to predict which species will be
+            capable of tracking their climatic niche over the coming
+            century <span class="citation"
+            data-cites="Talluto2017ExtDeb">(Talluto <em>et al.</em>
+            2017)</span>.</p>
+            <p>If the environmental conditions that give rise to
+            “source” or “sink” behavior are spatially autocorrelated,
+            there may be a similar spatial analogue to the inflationary
+            effect <span class="citation"
+            data-cites="Gonzalez2002InfEff">(Gonzalez &amp; Holt
+            2002)</span>—where temporal autocorrelation in environmental
+            conditions can cause “sink” patches to have greater expected
+            abundance than if the patch experiences a constant
+            environment <span class="citation"
+            data-cites="Matthews2007InfEff Roy2005TemAut">(Matthews
+            &amp; Gonzalez 2007; Roy <em>et al.</em> 2005)</span>.</p>
+            <p>To demonstrate this using EcoDynamics.jl, we simulate the
+            Beverton-Holt model (a stochastic, discrete-time model of
+            population dynamics) for 250 generations across spatial
+            graphs with a fixed ratio of sources:sinks. We simulate 512
+            random spatial graphs, each with 50 patches, at each value
+            of the proportion of patches that are sinks, ranging from 0
+            to 1 (Figure 4). This vignette highlights the integration
+            between NeutralLandscapes.jl and EcoDynamics.jl, creating
+            spatial graphs with autocorrelated environmental conditions
+            using the following:</p>
+            <pre><code>function make_graph(max_dispersal_distance)
+    el = EnvironmentLayer(generator=MidpointDisplacement(0.8)) 
+    coords = Coordinates(el)
+    sg = SpatialGraph(coords, DispersalKernel(max_distance=max_dispersal_distance)) 
+end </code></pre>
+            <p>This provides a spatial graph with an environmental
+            covariate associated between 0 and 1 with each patch (called
+            <code>x</code> by default). The underlying environmental
+            variable is generated using the `MidpointDisplacement``
+            neutral landscape generator from NeutralLandscapes.jl, and
+            takes <span class="math inline"><em>H</em> = 0.8</span> as a
+            parameter controlling spatial autocorrelation.</p>
+            <p>To relate this environmental covariate to the dynamics
+            that occur in each patch, we define a <code>niche</code>
+            function</p>
+            <pre><code>function niche(model, traits, local_env)
+    θ = paramdict(model)
+    θ[:R₀] = (cutoff - local_env[:x])
+    return θ
+end</code></pre>
+            <p>We find that as the maximum dispersal distance (colors in
+            Figure 4) increases, the proportion of patches that are able
+            to persist when exactly half of the patches are sinks (and
+            the other half are sources; 0.5 on the horizontal axis of
+            Figure 4), the “surplus” number of patches above half that
+            are able to persist, despite having negative growth rate,
+            increases.</p>
             <figure>
-            <img src="./figures/percolation.png" alt="TODO" />
-            <figcaption aria-hidden="true">TODO</figcaption>
+            <img src="./figures/inflationary.png" id="fig:inflation"
+            alt="Figure 3: The colonization credit provided by landscape connectivity. On the horizontal axis, the proportion of patches that are sinks, ranging from 0 (all sources) to 1 (all sinks). On the vertical axis, the proportion of patches that persist after 250 generations of the Beverton-Holt model with diffusion and a dispersal probability of 0.05." />
+            <figcaption aria-hidden="true">Figure 3: The colonization
+            credit provided by landscape connectivity. On the horizontal
+            axis, the proportion of patches that are sinks, ranging from
+            0 (all sources) to 1 (all sinks). On the vertical axis, the
+            proportion of patches that persist after 250 generations of
+            the Beverton-Holt model with diffusion and a dispersal
+            probability of 0.05.</figcaption>
             </figure>
-            <p>This packages is as much about understanding the effects
-            of connectivity and environmental variation as the effects
-            of connectivity on dynamics. Example of phase-transition in
-            connectivity as a result of the max-distance.</p>
-            <p>Explain dispersal kernel. In the real world, there are
-            intrinsic biological constraints tat make dispersal beyond a
-            certain distance have a probability of effectively <span
-            class="math inline">0</span>. In a spatial graph, depending
-            on how many patches there are and where they are located,
-            this means that there patches that are entirely isolated, or
-            small ‘meso-populations’ that interact with a few other
-            patches, but not the larger system as a whole (see fig
-            TBD).</p>
-            <p>Introduce percolation problem. As the maximum dispersal
-            distance of the species in question changes, so does the
-            topology of resulting spatial graph.</p>
-            <ul>
-            <li>In limit of infinite min distance and 0 decay, it should
-            approach critical transition of largest component in ER
-            graph.
-            <ul>
-            <li>How much does this diverge as function of alpha</li>
-            </ul></li>
-            </ul>
             <h2
-            id="bayesian-inference-of-local-community-dynamics">Bayesian
-            inference of local community dynamics</h2>
-            <ul>
-            <li>Local community dynamics
-            <ul>
-            <li>Ease of integration with Turing for Bayesian inference
-            of dynamics</li>
-            <li>It being built on DiffEq means easy integration w/
-            SciML.</li>
-            </ul></li>
-            </ul>
+            id="bayesian-inference-of-consumer-resource-dynamics">Bayesian
+            Inference of Consumer-Resource Dynamics</h2>
+            <p>The second pair of case studies deal with scenarios where
+            we have a time-series of observed dynamics, which are
+            potentially quite sparse in time and subject to lots of
+            measurement error. In this case, we are solving the inverse
+            problem <span class="citation"
+            data-cites="Stouffer2019AllEco">(Stouffer 2019)</span>—going
+            from a set of observations to inference about the parameters
+            underlying the generating process. In both examples, we will
+            deal with the dynamics of a Rosenzweig-MacArthur (RM)
+            consumer-resource model, given by the equations</p>
+            <p></p>
+            <p>Note that this is effectively resource logistic growth
+            with consumption given by a Holling Type-II functional
+            response. The RM system is particularly well studied as it
+            undergoes a Hopf-bifurcation as the value of <span
+            class="math inline"><em>K</em></span> increases (Roos 2023;
+            Rosenzweig 1971), moving from a place where both abundances
+            approach a stable spiral fixed point, to a point with
+            permanently oscillating limit cycles. As K continues to
+            increase beyond the Hopf bifurcation point, the amplitude of
+            the oscillations for both species increases—in real systems
+            this destabilizes dynamics as the increasing amplitude of
+            each species’ oscillations means points in the trajectory
+            get closer and closer to extinction (zero abundance), and as
+            a result this system is often cited as defining the “paradox
+            of enrichment”.</p>
+            <p>We infer the parameters of this system using a simple
+            interface from EcoDynamics.jl to to Turing.jl, a Julia
+            library for Bayesian inference and probabilistic programming
+            (Note that there are also interfaces to STAN using
+            DiffEqBayes.jl or STAN.jl). The results of this inference
+            are shown in Figure fig. 4. Note that although this is
+            fairly effective at learning the true parameters and
+            resulting dynamics from sparse, noisy data, this comes with
+            a large modeling trade-off, which is that we must a priori
+            specify that we believe that the underlying dynamics follow
+            the Rosenzweig-MacArthur form. We are, of course, free to
+            fit this data to a wide-variety of functional forms of
+            consumer-resource dynamics and apply model selection
+            techniques (e.g. AIC, MDL) to select which form most
+            effectively describes our data, though the scalability of
+            this approach begins to break down when confronted with
+            larger food-webs with potentially heterogeneous functional
+            responses between different species.</p>
             <figure>
-            <img src="./figures/bayes.png" alt="TODO" />
-            <figcaption aria-hidden="true">TODO</figcaption>
+            <img src="./figures/bayes.png" id="fig:bayes_inference"
+            alt="Figure 4: Inferred dynamics for the Rosenzweig-MacArthur system. In solid blue and red, the ground truth dynamics (for the consumer and resource respectively) from which the data points were sampled (dots) with normally distributed measurement error (with mean 0 and 2=0.1). The dashed line represents the mean sampled parameter values, and each of the thinner lines represents one of 300 randomly sampled individual parameter values from the posterior distribution." />
+            <figcaption aria-hidden="true">Figure 4: Inferred dynamics
+            for the Rosenzweig-MacArthur system. In solid blue and red,
+            the ground truth dynamics (for the consumer and resource
+            respectively) from which the data points were sampled (dots)
+            with normally distributed measurement error (with mean 0 and
+            2=0.1). The dashed line represents the mean sampled
+            parameter values, and each of the thinner lines represents
+            one of 300 randomly sampled individual parameter values from
+            the posterior distribution.</figcaption>
             </figure>
             <h2
             id="accounting-for-missing-ecology-using-ecology-informed-neural-networks">Accounting
-            for ‘missing-ecology’ using ecology-informed neural
+            for “missing-ecology” using ecology-informed neural
             networks</h2>
-            <p>Here we showcase one of the best advantages of
-            EcoDynamics being built on the SciML software ecosystem.</p>
             <h3
             id="scientific-machine-learning-and-physics-informed-neural-networks">Scientific
-            Machine Learning and Physics-Informed-Neural-Networks</h3>
-            <ul>
-            <li>What is SciML?</li>
-            <li>What are PINNs?
-            <ul>
-            <li>Widely used for PDEs with nonlinear behavior.</li>
-            <li>Turns out, when you train this on whole time-series,
-            this causes issues.<br />
-            </li>
-            </ul></li>
-            <li>What is difference between NeuralODE (NODE) and
-            UniversalODE (UODE)?
-            <ul>
-            <li>NeuralODE <span class="citation"
-            data-cites="Chen2018">(<strong>Chen2018?</strong>)</span>,</li>
-            <li>UODE <span class="citation"
-            data-cites="Rackauckus">(<strong>Rackauckus?</strong>)</span>,
-            NN is the residual</li>
-            </ul></li>
-            <li>Multiple shooting. Similar to <span class="citation"
-            data-cites="VictorBPaper">(<strong>VictorBPaper?</strong>)</span>
-            which found this method also improves fitting of NeuralODEs
-            in ecology.</li>
-            </ul>
+            Machine Learning and Physics Informed Neural Networks</h3>
+            <p>In many complex systems, and ecology especially, the true
+            form of the underlying dynamics are not fully known. This
+            problem has led to novel approaches that integrate machine
+            learning with conventional differential equation models of
+            systems to capture “unknown” or “missing” parts of the
+            models. Specifically in fluid-dynamics, this practice has
+            led to much research interest in statistical methods for
+            accounting for the inherent sparsity of data in many
+            high-dimensional non-linear systems and learning efficient
+            representations of their dynamics <span class="citation"
+            data-cites="Brunton2016DisGov">(Brunton <em>et al.</em>
+            2016)</span>—the general approach being to find a coordinate
+            basis that enables simpler representation of the underlying
+            dynamics than in a Cartesian basis. Moving beyond typical
+            statistical approaches to accomplish this same goal,
+            Physics-Informed-Neural-Networks (PINNs) are used to combine
+            mechanistic physical models with neural networks. This
+            research has led to development of many similar but distinct
+            models—both Neural ODEs (NODEs, <span class="citation"
+            data-cites="Chen2018NeuOrd">Chen <em>et al.</em>
+            (2018)</span>, <span class="citation"
+            data-cites="Dandekar2022BayNeu">Dandekar <em>et al.</em>
+            (2022)</span>) and Universal ODEs (UODEs; <span
+            class="citation"
+            data-cites="Rackauckas2021UniDif">Rackauckas <em>et al.</em>
+            (2021)</span>).</p>
+            <p>A brief summary of the differences is shown in Figure 4.
+            The primary differences are that PINNs include distance from
+            the prediction of a physical law directly in the loss
+            function, which neither NODEs nor UODEs do. Both PINNs and
+            NODEs use a neural network to approximate the entire
+            differential (<span class="math inline">$\frac{dx}{dt}=
+            \text{NN}(x)$</span>), where the loss function only
+            considers the distance from the data, while, UODEs only
+            approximate the residual between “known” dynamics and data,
+            i.e. <span class="math inline">$\frac{dx}{dt}=g(x) +
+            \text{NN}(x)$</span>, where <span
+            class="math inline"><em>g</em></span> is what is known a
+            priori about the equations governing the dynamics of the
+            system. Note that UODEs are a superset of NODEs, as setting
+            the <span class="math inline"><em>g</em>(<em>x</em>)</span>
+            term in a UODE to <span class="math inline">0</span> results
+            in a standard NODE (technically the formalism of UODEs makes
+            them a superset of any stochastic delay partial differential
+            equation, though the details are out of scope for this
+            paper, see <span class="citation"
+            data-cites="Rackauckas2021UniDif">Rackauckas <em>et al.</em>
+            (2021)</span> for more information).</p>
+            <p>Julia has one of the most mature ecosystems for SciML,
+            enabling straightforward interfaces from the various
+            software packages for SciML (DataDrivenDiffEq.jl,
+            DiffEqFlux.jl, SymbolicRegression.jl, etc.) to
+            EcoDynamics.jl.</p>
+            <figure>
+            <img src="./figures/einn_v2.png"
+            alt="The difference between three types of models used in Scientific Machine Learning (SciML). PINNs (left) and Neural ODEs (NODEs; center) and Universal ODEs (UODEs; right). Note that NODEs are a special case of UODEs where g(x)=0." />
+            <figcaption aria-hidden="true">The difference between three
+            types of models used in Scientific Machine Learning (SciML).
+            PINNs (left) and Neural ODEs (NODEs; center) and Universal
+            ODEs (UODEs; right). Note that NODEs are a special case of
+            UODEs where <span
+            class="math inline"><em>g</em>(<em>x</em>) = 0</span>.</figcaption>
+            </figure>
             <h3
-            id="infering-a-functional-response-using-ecology-informed-neural-networks">Infering
-            a functional response using
-            Ecology-Informed-Neural-Networks</h3>
-            <p>Lets say we know some simple, but incomplete, biological
-            information about each species in a consumer-resource
-            system. We’ll assume the resource exhibits some form of
-            density dependent growth, and mortaility as an unknown
-            function <span class="math inline"><em>f</em></span> of the
-            product of the amount of consumers and resource, <span
-            class="math inline"><em>f</em>(<em>C</em><em>R</em>)</span>.
-            Together this means we believe the derivate <span
-            class="math inline">$\frac{dR}{dt}$</span> should be
-            proportional to these values, i.e.</p>
-            <p><span class="math display">$$\frac{dR}{dt}
-            \propto  R(1-R) - f(CR)$$</span></p>
-            <p>Similarly, for the consumer we assume it growths
-            proportional to <span
-            class="math inline"><em>f</em>(<em>C</em><em>R</em>)</span>,
-            and is subject to linear mortality, i.e. </p>
-            <p><span class="math display">$$\frac{dC}{dt} \propto f(CR)
-            - R$$</span></p>
-            <p>We want to build a EINN that maps values that we know are
-            important in governing the dynamics of this system (<span
-            class="math inline"><em>C</em>, <em>R</em>(1−<em>R</em>), <em>C</em><em>R</em></span>).
-            In principle we could use a NN that maps from <span
-            class="math inline">[<em>C</em>,<em>R</em>]</span> to the
-            pair of derivatives <span
-            class="math inline">$[\frac{dC}{dt} \frac{dR}{dt}]$</span>,
-            and via the universal approximation theorem, with enough
-            first layer width we could approximate the true <span
-            class="math inline">$[\frac{dC}{dt} \frac{dR}{dt}]$</span>
-            to an arbitrarily small error <span class="citation"
-            data-cites="citeUAT">(<strong>citeUAT?</strong>)</span></p>
+            id="inferring-a-functional-response-using-ecology-informed-neural-networks">Inferring
+            a functional response using Ecology Informed Neural
+            Networks</h3>
+            <p>In this vignette, we demonstrate the integration between
+            EcoDynamics.jl and the Julia SciML ecosystem to fit a
+            NeuralODE to data from the Rosenzweig-MacArthur model. We
+            demonstrate a result from <span class="citation"
+            data-cites="Boussange2022MinEco">Boussange <em>et al.</em>
+            (2022)</span>, which is that capturing nonlinear dynamics
+            using NeuralODEs is much easier when training NODEs using a
+            method called “multiple-shooting” (also referred to as
+            “mini-batching”; <span class="citation"
+            data-cites="Turan2022MulSho">Turan &amp; Jäschke
+            (2022)</span>).</p>
+            <p>The default perspective when training a NODE on a
+            time-series is to compute a single loss value across all
+            pairs of adjacent time-points,</p>
             <p><span
-            class="math inline"><em>g</em>(<em>x⃗</em>) = <em>σ</em>(<em>W</em><sub>3</sub>⋅<em>σ</em>(<em>W</em><sub>2</sub>⋅tanh(<em>W</em><sub>3</sub>⋅<em>x⃗</em>)))</span></p>
+            class="math display">ℒ = ∑<sub><em>t</em> ∈ {2…<em>N</em><sub><em>t</em></sub>}</sub>|<em>x</em><sub><em>t</em> − 1</sub>−<em>x̂</em><sub><em>t</em></sub>|</span></p>
+            <p>though this tends to undefit oscillatory dynamics <span
+            class="citation" data-cites="Turan2022MulSho">(Turan &amp;
+            Jäschke 2022)</span>, which are particularly common in
+            ecological models. To address this, multiple shooting fits
+            the loss function by splitting the original time-series into
+            many smaller, shorter time-series, and evaluates the loss as
+            a combination the sum of the loss across all unique
+            segments, and a separate term that evaluates the distance
+            between the end point of each segment and the start of the
+            next one.</p>
             <figure>
-            <img src="./figures/einn.png" id="fig:einn"
-            alt="Figure 2: todo" />
-            <figcaption aria-hidden="true">Figure 2: todo</figcaption>
+            <img src="./figures/node.png" id="fig:sciml"
+            alt="Figure 5: Demonstration of inference of the Rosenzweig-MacArthur consumer-resource system using a Neural ODE (NODE) using two forms of multiple shooting—17-shooting, where the original data (points) is split into 17 segments (left) and 2-shooting where the original data is split into two parts (right). The dashed line is the continuation of the true dynamics beyond the temporal cutoff for training. Note how breaking the time-series into longer portions causes the NODE to underfit by quickly approaching the long-term average of both time-series." />
+            <figcaption aria-hidden="true">Figure 5: Demonstration of
+            inference of the Rosenzweig-MacArthur consumer-resource
+            system using a Neural ODE (NODE) using two forms of multiple
+            shooting—17-shooting, where the original data (points) is
+            split into 17 segments (left) and 2-shooting where the
+            original data is split into two parts (right). The dashed
+            line is the continuation of the true dynamics beyond the
+            temporal cutoff for training. Note how breaking the
+            time-series into longer portions causes the NODE to underfit
+            by quickly approaching the long-term average of both
+            time-series.</figcaption>
             </figure>
-            <figure>
-            <img src="./figures/einn_results.png" id="fig:einn_fit"
-            alt="Figure 3: todo" />
-            <figcaption aria-hidden="true">Figure 3: todo</figcaption>
-            </figure>
-            <p>The thing is, inputs aren’t limited just to this type of
-            species information, they can also include arbitrarily many
-            environment coviarates that can vary across space and/or
-            time. This worked for forecasting covid with neural-ODEs
-            <span class="citation"
-            data-cites="Nunez2023ForVir">(<strong>Nunez2023ForVir?</strong>)</span></p>
-            <p>Nonlinearity requires more data.</p>
-            <ul>
-            <li>Alternative to <span class="citation"
-            data-cites="BoettigerPaper">(<strong>BoettigerPaper?</strong>)</span></li>
-            </ul>
             <h1 id="discussion">Discussion</h1>
-            <p>Comparing different simulated models of dynamics to
-            empirical data is useful. - This enables stiatistical
-            comparison of potential models for producing a given sampled
-            dataset.</p>
-            <ul>
-            <li>Deep learning for forecasting. MCMC estimate of
-            parameters given true model is ideal [BoettigerPaper]</li>
-            <li>SciML and forecasting. Fill in “missing physics/ecology”
-            to determine what the <em>true</em> dynamics are</li>
-            </ul>
-            <h1 id="acknowledgements">Acknowledgements</h1>
-            <ul>
-            <li>Victor B</li>
-            </ul>
+            <p>Here we have showcased EcoDynamics.jl, a software package
+            for population and community dynamics on spatial graphs in
+            the Julia language. This software package includes a library
+            of common models for both occupancy and abundance dynamics,
+            and an interface to easily add custom models. Further,
+            EcoDynamics.jl enables species traits and heterogeneous
+            environmental conditions across patches to influence
+            dynamics, and includes methods for simulating observation
+            error to generate synthetic datasets for benchmarking and
+            validation of models for inference from time-series data.
+            This is all built on top of DifferentialEquations.jl, a
+            state-of-the-art library for simulation of deterministic and
+            stochastic differential equations <span class="citation"
+            data-cites="Rackauckas2017DifJl">(Rackauckas &amp; Nie
+            2017b)</span>. The aim of this toolkit is to standardize
+            methods for generating synthetic data, and to serve as a
+            “virtual laboratory” <span class="citation"
+            data-cites="Grimm2005IndMod">(Grimm &amp; Railsback
+            2005)</span> for testing sampling designs and inference
+            tools in silico.</p>
+            <p>The metacommunity concept has demonstrated its utility in
+            scaling from local community processes to describe the
+            distribution and abundance of species across space and time
+            <span class="citation"
+            data-cites="Leibold2004MetCon Leibold2017MetEco">(Leibold
+            <em>et al.</em> 2004; Leibold &amp; Chase 2017)</span>.
+            Metacommunity theory is built around understanding the
+            composition of species across heterogeneous landscapes by
+            treating them as networks of networks <span class="citation"
+            data-cites="Hutchinson2019SeeFor">(Hutchinson <em>et
+            al.</em> 2019)</span>. A standardized toolkit for community
+            dynamics on spatial graphs is needed to better understand
+            these systems, with the ability to rapidly prototype
+            “virtual experiments”, and to produce phase-diagrams of the
+            metacommunity paradigm (species-sorting, patch dynamics,
+            mass effect, neutral; <span class="citation"
+            data-cites="Leibold2004MetCon">Leibold <em>et al.</em>
+            (2004)</span>) that result from the balance of the
+            fundamental mechanisms that govern community ecology <span
+            class="citation" data-cites="Vellend2010ConSyn">(Vellend
+            2010)</span>. A downstream requirement for this software to
+            enable virtual experiments potentially involving spatial
+            heterogeneity, environmental perturbation, interspecific
+            variation in response to the environment, and so on, is that
+            this toolkit must be both flexible enough to enable custom
+            extension, but also fast enough to scale to large-scale
+            batch simulation.</p>
+            <p>We hope this is the foundation of developing a robust,
+            standardized set of tools for ecological dynamics in the
+            Julia language. There is increased interest in developing a
+            “digital twin” for biodiversity <span class="citation"
+            data-cites="Koning2023DigTwi">(Koning <em>et al.</em>
+            2023)</span>, and it is increasingly accepted that we will
+            not be able to detect and attribute the causes of
+            biodiversity without sufficient monitoring and modeling
+            tools <span class="citation"
+            data-cites="Gonzalez2023FraDet">(Gonzalez <em>et al.</em>
+            2023a)</span>.</p>
+            <p>We have also demonstrated the potential utility of
+            Scientific Machine Learning (SciML;<span class="citation"
+            data-cites="Rackauckas2021UniDif">Rackauckas <em>et al.</em>
+            (2021)</span>) for learning complex ecological dynamics from
+            limited training data. Despite a wide variety of theoretical
+            and applied advances being made in this field over the last
+            decade, its adoption in ecology is slow, despite its
+            potential <span class="citation"
+            data-cites="Boussange2022MinEco Chen2019RevCom">(Boussange
+            <em>et al.</em> 2022; Chen <em>et al.</em> 2019)</span>. The
+            ability to mix mechanistic models with data-driven methods
+            from machine learning offers particular advantages in
+            ecology, where there is often considerable variation in
+            data, even given a shared mechanism, due to the inherent
+            stochasticity of many ecological processes.</p>
+            <p>EcoDynamics.jl is built on two approximations: the
+            spatial graph approximation of patchy landscapes, and the
+            reaction-diffusion approximation of dispersal. These
+            abstractions, like all abstractions in ecological modeling,
+            are only valid for a particular set of scales. One possible
+            use of EcoDynamics.jl is to validate these assumptions in
+            comparison to simulation models designed around smaller
+            scales to determine when and why these approximations break
+            down. For example, diffusion may be an adequate
+            approximation for dispersal if it is a stationary process,
+            but if the dispersal distribution is characterized by rare
+            events (i.e the distribution kernel is fat-tailed), then
+            using the expected value of that process at each timestep
+            (as diffusion does) may not be a valid assumption at all.
+            Similarly, the spatial-graph assumption makes strong
+            assumptions about the quality of habitat that is not a core
+            patch—namely that it is inhospitable.</p>
+            <p>Such models may not adequately represent that movement
+            process of many organisms, but determining when this
+            approximation is valid is essential to know when it is
+            useful for making predictions and decisions in a
+            conservation or management context. It is worth remembering
+            that as scientists, we make approximations for a reason.
+            When considering something as complex as an ecosystem, it
+            can become tempting to imagine that the ontological validity
+            only lies in the smallest scales, and that each
+            approximation moves us further and further from ecological
+            reality. Yet it is obvious that basing ecological models on
+            the smallest scales possible is both computationally
+            intensive enough to be impractical, and also unlikely to
+            provide as much insight as it creates nearly as many
+            problems as it solves—“Abstraction becomes destructive when
+            the abstract is reified and when the historical process of
+            abstraction is forgotten, so that the abstract descriptions
+            are taken for descriptions of the actual objects…The problem
+            for science is to understand the proper domain of
+            explanation of each abstraction rather than become its
+            prisoner” <span class="citation"
+            data-cites="Levins1987DiaBio">(Levins &amp; Lewontin
+            1987)</span>.</p>
+            <p>We conclude by reemphasizing the need for tools like
+            EcoDynamics.jl to simulate synthetic data for the purpose of
+            testing and validating methods for inference from data
+            before they encounter data for which the true generating
+            process is unknown. Ecologists, and all other sciences,
+            inevitably are faced with the task of drawing inference from
+            data that they wish they knew much more about. Real data
+            will always be shrouded in the uncertainty that we are
+            unsure what the true process(es) generating the data is, and
+            that we can not be certain about how biased our measurements
+            are. By using mechanistic models to simulate many “possible
+            worlds”, we can at least benchmark and validate the methods
+            we use for inference and get a reasonable expectation of the
+            predictive efficacy of our forecasts. This is essential if
+            we are to produce forecasts that are not only robust, but
+            adequately reflect the uncertainty in their predictions
+            <span class="citation" data-cites="Urban2016ImpFor">(Urban
+            <em>et al.</em> 2016)</span>.</p>
+            <div id="refs"
+            class="references csl-bib-body hanging-indent"
+            role="doc-bibliography">
+            <div id="ref-Albert2017AppNet" class="csl-entry"
+            role="doc-biblioentry">
+            Albert, C.H., Rayfield, B., Dumitru, M. &amp; Gonzalez, A.
+            (2017). <a
+            href="https://doi.org/10.1111/cobi.12943">Applying network
+            theory to prioritize multispecies habitat networks that are
+            robust to climate and land-use change</a>. <em>Conservation
+            Biology</em>, 31, 1383–1396.
+            </div>
+            <div id="ref-Bagaria2015AssCoe" class="csl-entry"
+            role="doc-biblioentry">
+            Bagaria, G., Helm, A., Rodà, F. &amp; Pino, J. (2015). <a
+            href="https://doi.org/10.1007/s00442-015-3377-4">Assessing
+            coexisting plant extinction debt and colonization credit in
+            a grasslandforest change gradient</a>. <em>Oecologia</em>,
+            179, 823–834.
+            </div>
+            <div id="ref-Beckage2011LimPre" class="csl-entry"
+            role="doc-biblioentry">
+            Beckage, B., Gross, L.J. &amp; Kauffman, S. (2011). <a
+            href="https://doi.org/10.1890/ES11-00211.1">The limits to
+            prediction in ecological systems</a>. <em>Ecosphere</em>, 2,
+            art125.
+            </div>
+            <div id="ref-Bezanson2012JulFas" class="csl-entry"
+            role="doc-biblioentry">
+            Bezanson, J., Karpinski, S., Shah, V.B. &amp; Edelman, A.
+            (2012). <a
+            href="https://doi.org/10.48550/arXiv.1209.5145">Julia: A
+            Fast Dynamic Language for Technical Computing</a>.
+            </div>
+            <div id="ref-Boussange2022MinEco" class="csl-entry"
+            role="doc-biblioentry">
+            Boussange, V., Aceituno, P.V. &amp; Pellissier, L. (2022).
+            <em><a
+            href="https://doi.org/10.1101/2022.07.25.501365">Mini-batching
+            ecological data to improve ecosystem models with machine
+            learning</a></em> (Preprint). Ecology.
+            </div>
+            <div id="ref-Bowman2002DisDis" class="csl-entry"
+            role="doc-biblioentry">
+            Bowman, J., Jaeger, J.A.G. &amp; Fahrig, L. (2002). <a
+            href="https://doi.org/10.1890/0012-9658(2002)083[2049:DDOMIP]2.0.CO;2">Dispersal
+            distance in mammals is proportional to home range size</a>.
+            <em>Ecology</em>, 83, 2049–2055.
+            </div>
+            <div id="ref-Brunton2016DisGov" class="csl-entry"
+            role="doc-biblioentry">
+            Brunton, S.L., Proctor, J.L. &amp; Kutz, J.N. (2016). <a
+            href="https://doi.org/10.1073/pnas.1517384113">Discovering
+            governing equations from data by sparse identification of
+            nonlinear dynamical systems</a>. <em>Proceedings of the
+            National Academy of Sciences</em>, 113, 3932–3937.
+            </div>
+            <div id="ref-Cardinale2012BioLos" class="csl-entry"
+            role="doc-biblioentry">
+            Cardinale, B.J., Duffy, J.E., Gonzalez, A., Hooper, D.U.,
+            Perrings, C., Venail, P., <em>et al.</em> (2012). <a
+            href="https://doi.org/10.1038/nature11148">Biodiversity loss
+            and its impact on humanity</a>. <em>Nature</em>, 486, 59–67.
+            </div>
+            <div id="ref-Chen2018NeuOrd" class="csl-entry"
+            role="doc-biblioentry">
+            Chen, T.Q., Rubanova, Y., Bettencourt, J. &amp; Duvenaud,
+            D.K. (2018). Neural Ordinary Differential Equations.
+            </div>
+            <div id="ref-Chen2019RevCom" class="csl-entry"
+            role="doc-biblioentry">
+            Chen, Y., Angulo, M.T. &amp; Liu, Y.-Y. (2019). <a
+            href="https://doi.org/10.1002/bies.201900069">Revealing
+            Complex Ecological Dynamics via Symbolic Regression</a>.
+            <em>BioEssays</em>, 41, 1900069.
+            </div>
+            <div id="ref-Cranmer2020DisSym" class="csl-entry"
+            role="doc-biblioentry">
+            Cranmer, M., Sanchez-Gonzalez, A., Battaglia, P., Xu, R.,
+            Cranmer, K., Spergel, D., <em>et al.</em> (2020). <a
+            href="https://arxiv.org/abs/2006.11287">Discovering Symbolic
+            Models from Deep Learning with Inductive Biases</a>.
+            </div>
+            <div id="ref-Cristofoli2010ColCre" class="csl-entry"
+            role="doc-biblioentry">
+            Cristofoli, S., Piqueray, J., Dufrêne, M., Bizoux, J.-P.
+            &amp; Mahy, G. (2010). <a
+            href="https://doi.org/10.1111/j.1526-100X.2008.00495.x">Colonization
+            Credit in Restored Wet Heathlands</a>. <em>Restoration
+            Ecology</em>, 18, 645–655.
+            </div>
+            <div id="ref-Dale2010GraSpa" class="csl-entry"
+            role="doc-biblioentry">
+            Dale, M.R.T. &amp; Fortin, M.-J. (2010). <a
+            href="https://doi.org/10.1146/annurev-ecolsys-102209-144718">From
+            Graphs to Spatial Graphs</a>. <em>Annual Review of Ecology,
+            Evolution, and Systematics</em>, 41, 21–38.
+            </div>
+            <div id="ref-Dandekar2022BayNeu" class="csl-entry"
+            role="doc-biblioentry">
+            Dandekar, R., Chung, K., Dixit, V., Tarek, M.,
+            Garcia-Valadez, A., Vemula, K.V., <em>et al.</em> (2022). <a
+            href="https://arxiv.org/abs/2012.07244">Bayesian Neural
+            Ordinary Differential Equations</a>.
+            </div>
+            <div id="ref-Duplisea2016ExtDeb" class="csl-entry"
+            role="doc-biblioentry">
+            Duplisea, D.E., Frisk, M.G. &amp; Trenkel, V.M. (2016). <a
+            href="https://doi.org/10.1371/journal.pone.0166409">Extinction
+            Debt and Colonizer Credit on a Habitat Perturbed Fishing
+            Bank</a>. <em>PLOS ONE</em>, 11, e0166409.
+            </div>
+            <div id="ref-Erdos1959RanGra" class="csl-entry"
+            role="doc-biblioentry">
+            Erdos &amp; Renyi. (1959). On random graphs.
+            <em>Publicationes Mathematicae</em>, 290–297.
+            </div>
+            <div id="ref-Ge2018TurLan" class="csl-entry"
+            role="doc-biblioentry">
+            Ge, H., Xu, K. &amp; Ghahramani, Z. (2018). Turing: A
+            Language for Flexible Probabilistic Inference. In:
+            <em>Proceedings of the Twenty-First International Conference
+            on Artificial Intelligence and Statistics</em>. PMLR, pp.
+            1682–1690.
+            </div>
+            <div id="ref-Gibert2019LapMat" class="csl-entry"
+            role="doc-biblioentry">
+            Gibert, J.P. &amp; Yeakel, J.D. (2019). <a
+            href="https://doi.org/10.1007/s12080-018-0403-2">Laplacian
+            matrices and Turing bifurcations: Revisiting Levin 1974 and
+            the consequences of spatial structure and movement for
+            ecological dynamics</a>. <em>Theoretical Ecology</em>, 12,
+            265–281.
+            </div>
+            <div id="ref-Gonzalez2023FraDet" class="csl-entry"
+            role="doc-biblioentry">
+            Gonzalez, A., Chase, J.M. &amp; O’Connor, M.I. (2023a). <a
+            href="https://doi.org/10.1098/rstb.2022.0182">A framework
+            for the detection and attribution of biodiversity
+            change</a>. <em>Philosophical Transactions of the Royal
+            Society B: Biological Sciences</em>, 378, 20220182.
+            </div>
+            <div id="ref-Gonzalez2002InfEff" class="csl-entry"
+            role="doc-biblioentry">
+            Gonzalez, A. &amp; Holt, R.D. (2002). <a
+            href="https://doi.org/10.1073/pnas.232589299">The
+            inflationary effects of environmental fluctuations in
+            sourcesink systems</a>. <em>Proceedings of the National
+            Academy of Sciences</em>, 99, 14872–14877.
+            </div>
+            <div id="ref-Gonzalez2023GloBio" class="csl-entry"
+            role="doc-biblioentry">
+            Gonzalez, A., Vihervaara, P., Balvanera, P., Bates, A.E.,
+            Bayraktarov, E., Bellingham, P.J., <em>et al.</em> (2023b).
+            <a href="https://doi.org/10.1038/s41559-023-02171-0">A
+            global biodiversity observing system to unite monitoring and
+            guide action</a>. <em>Nature Ecology &amp; Evolution</em>,
+            1–5.
+            </div>
+            <div id="ref-Green2016SimPac" class="csl-entry"
+            role="doc-biblioentry">
+            Green, P. &amp; MacLeod, C.J. (2016). <a
+            href="https://doi.org/10.1111/2041-210X.12504">SIMR: An R
+            package for power analysis of generalized linear mixed
+            models by simulation</a>. <em>Methods in Ecology and
+            Evolution</em>, 7, 493–498.
+            </div>
+            <div id="ref-Grimm2005IndMod" class="csl-entry"
+            role="doc-biblioentry">
+            Grimm, V. &amp; Railsback, S.F. (2005). <em>Individual-based
+            modeling and ecology</em>. Princeton series in theoretical
+            and computational biology. Princeton University Press,
+            Princeton.
+            </div>
+            <div id="ref-Grimm2013IndMod" class="csl-entry"
+            role="doc-biblioentry">
+            Grimm, V. &amp; Railsback, S.F. (2013). <a
+            href="https://doi.org/10.1515/9781400850624">Individual-based
+            Modeling and Ecology</a>. In: <em>Individual-based Modeling
+            and Ecology</em>. Princeton University Press.
+            </div>
+            <div id="ref-Haddou2022WidExt" class="csl-entry"
+            role="doc-biblioentry">
+            Haddou, Y., Mancy, R., Matthiopoulos, J., Spatharis, S.
+            &amp; Dominoni, D.M. (2022). <a
+            href="https://doi.org/10.1038/s41559-021-01653-3">Widespread
+            extinction debts and colonization credits in United States
+            breeding bird communities</a>. <em>Nature Ecology &amp;
+            Evolution</em>, 6, 324–331.
+            </div>
+            <div id="ref-Hastings1978GloSta" class="csl-entry"
+            role="doc-biblioentry">
+            Hastings, A. (1978). <a
+            href="https://doi.org/10.1007/BF02450786">Global stability
+            in Lotka-Volterra systems with diffusion</a>. <em>Journal of
+            Mathematical Biology</em>, 6, 163–168.
+            </div>
+            <div id="ref-Holling1966FunRes" class="csl-entry"
+            role="doc-biblioentry">
+            Holling, C.S. (1966). <a
+            href="https://doi.org/10.4039/entm9848fv">The Functional
+            Response of Invertebrate Predators to Prey Density</a>.
+            <em>The Memoirs of the Entomological Society of Canada</em>,
+            98, 5–86.
+            </div>
+            <div id="ref-Hughes2021SamBia" class="csl-entry"
+            role="doc-biblioentry">
+            Hughes, A.C., Orr, M.C., Ma, K., Costello, M.J., Waller, J.,
+            Provoost, P., <em>et al.</em> (2021). <a
+            href="https://doi.org/10.1111/ecog.05926">Sampling biases
+            shape our view of the natural world</a>. <em>Ecography</em>,
+            44, 1259–1269.
+            </div>
+            <div id="ref-Hutchinson2019SeeFor" class="csl-entry"
+            role="doc-biblioentry">
+            Hutchinson, M.C., Bramon Mora, B., Pilosof, S., Barner,
+            A.K., Kéfi, S., Thébault, E., <em>et al.</em> (2019). <a
+            href="https://doi.org/10.1111/1365-2435.13237">Seeing the
+            forest for the trees: Putting multilayer networks to work
+            for community ecology</a>. <em>Functional Ecology</em>, 33,
+            206–217.
+            </div>
+            <div id="ref-Koning2023DigTwi" class="csl-entry"
+            role="doc-biblioentry">
+            Koning, K. de, Broekhuijsen, J., Kühn, I., Ovaskainen, O.,
+            Taubert, F., Endresen, D., <em>et al.</em> (2023). <a
+            href="https://doi.org/10.1016/j.tree.2023.04.010">Digital
+            twins: Dynamic model-data fusion for ecology</a>. <em>Trends
+            in Ecology &amp; Evolution</em>, 38, 916–926.
+            </div>
+            <div id="ref-Leibold2017MetEco" class="csl-entry"
+            role="doc-biblioentry">
+            Leibold, M.A. &amp; Chase, J.M. (2017). <a
+            href="https://doi.org/10.1515/9781400889068">Metacommunity
+            Ecology, Volume 59</a>. In: <em>Metacommunity Ecology,
+            Volume 59</em>. Princeton University Press.
+            </div>
+            <div id="ref-Leibold2004MetCon" class="csl-entry"
+            role="doc-biblioentry">
+            Leibold, M.A., Holyoak, M., Mouquet, N., Amarasekare, P.,
+            Chase, J.M., Hoopes, M.F., <em>et al.</em> (2004). <a
+            href="https://doi.org/10.1111/j.1461-0248.2004.00608.x">The
+            metacommunity concept: A framework for multi-scale community
+            ecology</a>. <em>Ecology Letters</em>, 7, 601–613.
+            </div>
+            <div id="ref-Leung2020CluCat" class="csl-entry"
+            role="doc-biblioentry">
+            Leung, B., Hargreaves, A.L., Greenberg, D.A., McGill, B.,
+            Dornelas, M. &amp; Freeman, R. (2020). <a
+            href="https://doi.org/10.1038/s41586-020-2920-6">Clustered
+            versus catastrophic global vertebrate declines</a>.
+            <em>Nature</em>, 588, 267–271.
+            </div>
+            <div id="ref-Levin1998EcoBio" class="csl-entry"
+            role="doc-biblioentry">
+            Levin, S.A. (1998). <a
+            href="https://www.jstor.org/stable/3658676">Ecosystems and
+            the Biosphere as Complex Adaptive Systems</a>.
+            <em>Ecosystems</em>, 1, 431–436.
+            </div>
+            <div id="ref-Levins1987DiaBio" class="csl-entry"
+            role="doc-biblioentry">
+            Levins, R. &amp; Lewontin, R.C. (1987). <em>The Dialectical
+            Biologist</em>. Harvard University Press, Cambridge, Mass.
+            </div>
+            <div id="ref-Martin2018RevEco" class="csl-entry"
+            role="doc-biblioentry">
+            Martin, B.T., Munch, S.B. &amp; Hein, A.M. (2018). <a
+            href="https://doi.org/10.1098/rspb.2018.0422">Reverse-engineering
+            ecological theory from data</a>. <em>Proceedings of the
+            Royal Society B: Biological Sciences</em>, 285, 20180422.
+            </div>
+            <div id="ref-Matthews2007InfEff" class="csl-entry"
+            role="doc-biblioentry">
+            Matthews, D.P. &amp; Gonzalez, A. (2007). <a
+            href="https://www.jstor.org/stable/27651443">The
+            Inflationary Effects of Environmental Fluctuations Ensure
+            the Persistence of Sink Metapopulations</a>.
+            <em>Ecology</em>, 88, 2848–2856.
+            </div>
+            <div id="ref-Melbourne2008ExtRis" class="csl-entry"
+            role="doc-biblioentry">
+            Melbourne, B.A. &amp; Hastings, A. (2008). <a
+            href="https://doi.org/10.1038/nature06922">Extinction risk
+            depends strongly on factors contributing to
+            stochasticity</a>. <em>Nature</em>, 454, 100–103.
+            </div>
+            <div id="ref-Newman2018Net" class="csl-entry"
+            role="doc-biblioentry">
+            Newman, M. (2018). <em>Networks</em>. Oxford University
+            Press.
+            </div>
+            <div id="ref-Okubo1978DifEco" class="csl-entry"
+            role="doc-biblioentry">
+            Okubo, A. &amp; Levin, S.A. (1978). <em><a
+            href="https://doi.org/10.1007/978-1-4757-4978-6">Diffusion
+            and Ecological Problems: Modern Perspectives</a></em>.
+            Interdisciplinary Applied Mathematics. Springer, New York,
+            NY.
+            </div>
+            <div id="ref-Pennekamp2019IntPre" class="csl-entry"
+            role="doc-biblioentry">
+            Pennekamp, F., Iles, A.C., Garland, J., Brennan, G., Brose,
+            U., Gaedke, U., <em>et al.</em> (2019). <a
+            href="https://doi.org/10.1002/ecm.1359">The intrinsic
+            predictability of ecological time series and its potential
+            to guide forecasting</a>. <em>Ecological Monographs</em>,
+            89, e01359.
+            </div>
+            <div id="ref-Petchey2015EcoFor" class="csl-entry"
+            role="doc-biblioentry">
+            Petchey, O.L., Pontarp, M., Massie, T.M., Kéfi, S., Ozgul,
+            A., Weilenmann, M., <em>et al.</em> (2015). <a
+            href="https://doi.org/10.1111/ele.12443">The ecological
+            forecast horizon, and examples of its uses and
+            determinants</a>. <em>Ecology Letters</em>, 18, 597–611.
+            </div>
+            <div id="ref-Pilosof2017MulNat" class="csl-entry"
+            role="doc-biblioentry">
+            Pilosof, S., Porter, M.A., Pascual, M. &amp; Kéfi, S.
+            (2017). <a
+            href="https://doi.org/10.1038/s41559-017-0101">The
+            multilayer nature of ecological networks</a>. <em>Nature
+            Ecology &amp; Evolution</em>, 1, 1–9.
+            </div>
+            <div id="ref-Poisot2019EcoDat" class="csl-entry"
+            role="doc-biblioentry">
+            Poisot, T., Bruneau, A., Gonzalez, A., Gravel, D. &amp;
+            Peres-Neto, P. (2019). <a
+            href="https://doi.org/10.1016/j.tree.2019.04.005">Ecological
+            Data Should Not Be So Hard to Find and Reuse</a>. <em>Trends
+            in Ecology &amp; Evolution</em>, 34, 494–496.
+            </div>
+            <div id="ref-Pulliam1988SouSin" class="csl-entry"
+            role="doc-biblioentry">
+            Pulliam, H.R. (1988). <a
+            href="https://doi.org/10.1086/284880">Sources, Sinks, and
+            Population Regulation</a>. <em>The American Naturalist</em>,
+            132, 652–661.
+            </div>
+            <div id="ref-Rackauckas2021UniDif" class="csl-entry"
+            role="doc-biblioentry">
+            Rackauckas, C., Ma, Y., Martensen, J., Warner, C., Zubov,
+            K., Supekar, R., <em>et al.</em> (2021). <a
+            href="https://arxiv.org/abs/2001.04385">Universal
+            Differential Equations for Scientific Machine Learning</a>.
+            </div>
+            <div id="ref-Rackauckas2017AdaMet" class="csl-entry"
+            role="doc-biblioentry">
+            Rackauckas, C. &amp; Nie, Q. (2017a). <a
+            href="https://doi.org/10.3934/dcdsb.2017133">Adaptive
+            methods for stochastic differential equations via natural
+            embeddings and rejection sampling with memory</a>.
+            <em>Discrete and Continuous Dynamical Systems. Series
+            B</em>, 22, 2731–2761.
+            </div>
+            <div id="ref-Rackauckas2017DifJl" class="csl-entry"
+            role="doc-biblioentry">
+            Rackauckas, C. &amp; Nie, Q. (2017b). <a
+            href="https://doi.org/10.5334/jors.151">DifferentialEquations.jl
+            A Performant and Feature-Rich Ecosystem for Solving
+            Differential Equations in Julia</a>. <em>Journal of Open
+            Research Software</em>, 5, 15.
+            </div>
+            <div id="ref-Rackauckas2019ConMod" class="csl-entry"
+            role="doc-biblioentry">
+            Rackauckas, C. &amp; Nie, Q. (2019). <a
+            href="https://doi.org/10.1016/j.advengsoft.2019.03.009">Confederated
+            modular differential equation APIs for accelerated algorithm
+            development and benchmarking</a>. <em>Advances in
+            Engineering Software</em>, 132, 1–6.
+            </div>
+            <div id="ref-Rackauckas2020StaHig" class="csl-entry"
+            role="doc-biblioentry">
+            Rackauckas, C. &amp; Nie, Q. (2020). <a
+            href="https://doi.org/10.1109/HPEC43674.2020.9286178">Stability-Optimized
+            High Order Methods and Stiffness Detection for Pathwise
+            Stiff Stochastic Differential Equations</a>. In: <em>2020
+            IEEE High Performance Extreme Computing Conference
+            (HPEC)</em>. pp. 1–8.
+            </div>
+            <div id="ref-Roy2005TemAut" class="csl-entry"
+            role="doc-biblioentry">
+            Roy, M., Holt, R.D. &amp; Barfield, M. (2005). <a
+            href="https://doi.org/10.1086/431286">Temporal
+            Autocorrelation Can Enhance the Persistence and Abundance of
+            Metapopulations Comprised of Coupled Sinks.</a> <em>The
+            American Naturalist</em>, 166, 246–261.
+            </div>
+            <div id="ref-Rumpf2019ExtDeb" class="csl-entry"
+            role="doc-biblioentry">
+            Rumpf, S.B., Hülber, K., Wessely, J., Willner, W., Moser,
+            D., Gattringer, A., <em>et al.</em> (2019). <a
+            href="https://doi.org/10.1038/s41467-019-12343-x">Extinction
+            debts and colonization credits of non-forest plants in the
+            European Alps</a>. <em>Nature Communications</em>, 10, 4293.
+            </div>
+            <div id="ref-Savary2023HetDis" class="csl-entry"
+            role="doc-biblioentry">
+            Savary, P., Lessard, J.-P. &amp; Peres-Neto, P.R. (2023). <a
+            href="https://doi.org/10.1016/j.tree.2023.10.002">Heterogeneous
+            dispersal networks to improve biodiversity science</a>.
+            <em>Trends in Ecology &amp; Evolution</em>, 0.
+            </div>
+            <div id="ref-Stouffer2019AllEco" class="csl-entry"
+            role="doc-biblioentry">
+            Stouffer, D.B. (2019). <a
+            href="https://doi.org/10.1111/1365-2656.12949">All
+            ecological models are wrong, but some are useful</a>.
+            <em>Journal of Animal Ecology</em>, 88, 192–195.
+            </div>
+            <div id="ref-Talluto2017ExtDeb" class="csl-entry"
+            role="doc-biblioentry">
+            Talluto, M.V., Boulangeat, I., Vissault, S., Thuiller, W.
+            &amp; Gravel, D. (2017). <a
+            href="https://doi.org/10.1038/s41559-017-0182">Extinction
+            debt and colonization credit delay range shifts of eastern
+            North American trees</a>. <em>Nature Ecology &amp;
+            Evolution</em>, 1, 1–6.
+            </div>
+            <div id="ref-Thompson2020ProMet" class="csl-entry"
+            role="doc-biblioentry">
+            Thompson, P.L., Guzman, L.M., De Meester, L., Horváth, Z.,
+            Ptacnik, R., Vanschoenwinkel, B., <em>et al.</em> (2020). <a
+            href="https://doi.org/10.1111/ele.13568">A process-based
+            metacommunity framework linking local and regional scale
+            community ecology</a>. <em>Ecology Letters</em>, 23,
+            1314–1329.
+            </div>
+            <div id="ref-Tucker2021EffSam" class="csl-entry"
+            role="doc-biblioentry">
+            Tucker, J.M., Moriarty, K.M., Ellis, M.M. &amp; Golding,
+            J.D. (2021). <a
+            href="https://doi.org/10.1002/ecs2.3519">Effective sampling
+            area is a major driver of power to detect long-term trends
+            in multispecies occupancy monitoring</a>.
+            <em>Ecosphere</em>, 12, e03519.
+            </div>
+            <div id="ref-Turan2022MulSho" class="csl-entry"
+            role="doc-biblioentry">
+            Turan, E.M. &amp; Jäschke, J. (2022). <a
+            href="https://doi.org/10.1109/LCSYS.2021.3135835">Multiple
+            shooting for training neural differential equations on time
+            series</a>. <em>IEEE Control Systems Letters</em>, 6,
+            1897–1902.
+            </div>
+            <div id="ref-Turing1952CheBas" class="csl-entry"
+            role="doc-biblioentry">
+            Turing, A.M. (1952). <a
+            href="https://doi.org/10.1098/rstb.1952.0012">The chemical
+            basis of morphogenesis</a>. <em>Philosophical Transactions
+            of the Royal Society of London. Series B, Biological
+            Sciences</em>, 237, 37–72.
+            </div>
+            <div id="ref-Urban2016ImpFor" class="csl-entry"
+            role="doc-biblioentry">
+            Urban, M.C., Bocedi, G., Hendry, A.P., Mihoub, J.-B., Pe’er,
+            G., Singer, A., <em>et al.</em> (2016). <a
+            href="https://doi.org/10.1126/science.aad8466">Improving the
+            forecast for biodiversity under climate change</a>.
+            <em>Science</em>, 353, aad8466.
+            </div>
+            <div id="ref-Urban2022CodLif" class="csl-entry"
+            role="doc-biblioentry">
+            Urban, M.C., Travis, J.M.J., Zurell, D., Thompson, P.L.,
+            Synes, N.W., Scarpa, A., <em>et al.</em> (2022). <a
+            href="https://doi.org/10.1093/biosci/biab099">Coding for
+            Life: Designing a Platform for Projecting and Protecting
+            Global Biodiversity</a>. <em>BioScience</em>, 72, 91–104.
+            </div>
+            <div id="ref-Vellend2010ConSyn" class="csl-entry"
+            role="doc-biblioentry">
+            Vellend, M. (2010). <a
+            href="https://doi.org/10.1086/652373">Conceptual Synthesis
+            in Community Ecology</a>. <em>The Quarterly Review of
+            Biology</em>, 85, 183–206.
+            </div>
+            <div id="ref-Whitmee2013PreDis" class="csl-entry"
+            role="doc-biblioentry">
+            Whitmee, S. &amp; Orme, C.D.L. (2013). <a
+            href="https://doi.org/10.1111/j.1365-2656.2012.02030.x">Predicting
+            dispersal distance in mammals: A trait-based approach</a>.
+            <em>Journal of Animal Ecology</em>, 82, 211–221.
+            </div>
+            <div id="ref-Yodzis1992BodSiz" class="csl-entry"
+            role="doc-biblioentry">
+            Yodzis, P. &amp; Innes, S. (1992). <a
+            href="https://doi.org/10.1086/285380">Body Size and
+            Consumer-Resource Dynamics</a>. <em>The American
+            Naturalist</em>, 139, 1151–1175.
+            </div>
+            </div>
         </article>
     </main>
 
@@ -677,20 +1855,20 @@ manuscripts using markdown and github actions</div>
                 <div class="container">
             <h2>Supplementary Material</h2>
             <span class="appendix--list">
-                <a href="appendix/Poisot_2023_template_prepare_s1.pdf" target="_blank">
+                <a href="appendix/Catchen_et_al_2023_ecodynamicsjl_virtual_s1.pdf" target="_blank">
                     <b>1:</b>&nbsp;The metadata configuration file
                 </a><br />
             </span><span class="appendix--list">
-                <a href="appendix/Poisot_2023_template_prepare_s2.pdf" target="_blank">
+                <a href="appendix/Catchen_et_al_2023_ecodynamicsjl_virtual_s2.pdf" target="_blank">
                     <b>2:</b>&nbsp;Bibliography in supp. mat.
                 </a><br />
             </span>
         </div>
                 <div class="container">
             <h2>Affiliations</h2>
-            <sup>1</sup>&nbsp;Université de
-            Montréal; <sup>2</sup>&nbsp;Québec Centre for Biodiversity
-            Sciences
+            <sup>1</sup>&nbsp;McGill
+            University; <sup>2</sup>&nbsp;Québec Centre for Biodiversity
+            Science; <sup>3</sup>&nbsp;Université de Montréal
             <br />
             
         </div>
